@@ -1,0 +1,44 @@
+# bağımlılıklar
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# üretilen yerel klasörler (EAS / prebuild üretir)
+/ios
+/android
+
+# imza ve anahtar dosyaları
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# Metro
+.metro-health-check*
+
+# günlükler
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# yerel ortam değişkenleri (depoda sadece .env.example)
+.env
+.env*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# test çıktıları
+coverage/
+
+# işletim sistemi
+.DS_Store
+Thumbs.db
