@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Ruhsat",
+    "slug": "ruhsat",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "ruhsat",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "com.miracdeprem.ruhsat",
+      "supportsTablet": false,
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleAllowMixedLocalizations": true
+      }
+    },
+    "locales": {
+      "tr": "./locales/ios-tr.json",
+      "en": "./locales/ios-en.json"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F2EEE5",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76,
+          "dark": { "backgroundColor": "#15171A" }
+        }
+      ],
+      "expo-sqlite",
+      "expo-localization"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
