@@ -20,6 +20,7 @@ import {
 import { deleteAllRecords } from '@/features/settings/wipe';
 import { AccountSection } from '@/features/account/AccountSection';
 import { AdsSection } from '@/features/ads/AdsSection';
+import { DemoSection } from '@/features/demo/DemoSection';
 import { useSession } from '@/sync/client';
 import { CURRENCY_FORMATS, formatMoney, useI18n, type LocalePreference } from '@/i18n';
 import { fonts } from '@/theme/colors';
@@ -220,6 +221,9 @@ export default function SettingsScreen() {
           />
         </Card>
       </Section>
+
+      {/* Mağaza görüntüleri için örnek veriler; mağaza derlemesinde yok. */}
+      {__DEV__ ? <DemoSection /> : null}
     </Screen>
   );
 }
