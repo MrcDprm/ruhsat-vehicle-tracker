@@ -1,5 +1,3 @@
-import { DatePicker, Host } from '@expo/ui/swift-ui';
-import { datePickerStyle, environment } from '@expo/ui/swift-ui/modifiers';
 import * as Haptics from 'expo-haptics';
 import { Stack, router, useLocalSearchParams, usePreventRemove } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -8,6 +6,8 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
+import { DateField } from '@/components/DateField';
+import { HeaderButton } from '@/components/HeaderButton';
 import { Section } from '@/components/Section';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
@@ -43,26 +43,10 @@ const PRICE_KEYS: Record<PriceField, 'liters' | 'totalPrice' | 'unitPrice'> = {
   unit: 'unitPrice',
 };
 
-function HeaderButton({ title, onPress, bold }: { title: string; onPress: () => void; bold?: boolean }) {
-  const { colors } = useTheme();
-  return (
-    <Pressable accessibilityRole="button" hitSlop={10} onPress={onPress} style={{ paddingHorizontal: 4 }}>
-      <Text
-        style={{
-          fontFamily: bold ? fonts.bodySemi : fonts.body,
-          fontSize: 17,
-          color: bold ? colors.amber : colors.ink,
-        }}>
-        {title}
-      </Text>
-    </Pressable>
-  );
-}
-
 export default function FuelEditScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { t, number, locale } = useI18n();
-  const { colors, scheme } = useTheme();
+  const { colors } = useTheme();
   const { active: vehicle } = useActiveVehicle();
   const entries = useFuelEntries(vehicle?.id);
   const allowed = useMemo(() => entryFuelTypes(vehicle?.fuelTypes ?? []), [vehicle?.fuelTypes]);
@@ -331,31 +315,13 @@ export default function FuelEditScreen() {
                 </Text>
               </View>
             </Pressable>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 12,
-              }}>
-              <Text variant="caption" tone="muted">
-                {t('fuel.date')}
-              </Text>
-              <Host matchContents colorScheme={scheme === 'dark' ? 'dark' : 'light'} seedColor={colors.amber}>
-                <DatePicker
-                  selection={new Date(form.date)}
-                  range={{ end: new Date() }}
-                  displayedComponents={['date']}
-                  onDateChange={(d) => set('date', d.getTime())}
-                  modifiers={[datePickerStyle('compact'), environment('locale', locale === 'tr' ? 'tr_TR' : 'en_GB')]}
-                />
-              </Host>
-            </View>
-            {errors.date ? (
-              <Text variant="caption" tone="rust">
-                {t(errors.date)}
-              </Text>
-            ) : null}
+            <DateField
+              label={t('fuel.date')}
+              value={form.date}
+              onChange={(ms) => set('date', ms)}
+              past
+              error={err('date')}
+            />
           </Section>
 
           <Section title={t('fuel.section.more')} index={2}>

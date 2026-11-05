@@ -6,6 +6,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
+import { HeaderButton } from '@/components/HeaderButton';
 import { Section } from '@/components/Section';
 import { Suggestions } from '@/components/Suggestions';
 import { Text } from '@/components/Text';
@@ -30,22 +31,6 @@ const EMPTY: VehicleInput = {
   tankLiters: '',
   odometerKm: '',
 };
-
-function HeaderButton({ title, onPress, bold }: { title: string; onPress: () => void; bold?: boolean }) {
-  const { colors } = useTheme();
-  return (
-    <Pressable accessibilityRole="button" hitSlop={10} onPress={onPress} style={{ paddingHorizontal: 4 }}>
-      <Text
-        style={{
-          fontFamily: bold ? fonts.bodySemi : fonts.body,
-          fontSize: 17,
-          color: bold ? colors.amber : colors.ink,
-        }}>
-        {title}
-      </Text>
-    </Pressable>
-  );
-}
 
 export default function VehicleEditScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
