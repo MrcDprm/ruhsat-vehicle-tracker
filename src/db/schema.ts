@@ -57,3 +57,70 @@ export const fuelEntries = sqliteTable(
 );
 
 export type FuelEntry = typeof fuelEntries.$inferSelect;
+
+// Masraf türleri (docs/plan.md "Bakım, masraf ve hatırlatmalar"). Bakımın alt türü subtype'ta.
+export const EXPENSE_CATEGORIES = [
+  'service',
+  'inspection',
+  'traffic_insurance',
+  'casco',
+  'road_tax',
+  'fine',
+  'parking_toll',
+  'wash',
+  'other',
+] as const;
+export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
+
+export const SERVICE_SUBTYPES = ['oil', 'filter', 'tyre', 'brake', 'battery', 'other'] as const;
+export type ServiceSubtype = (typeof SERVICE_SUBTYPES)[number];
+
+export const expenses = sqliteTable(
+  'expenses',
+  {
+    ...syncColumns,
+    vehicleId: text('vehicle_id').notNull(),
+    date: integer('date').notNull(),
+    /** İsteğe bağlı: otopark ya da ceza için km anlamsız. */
+    odometerKm: integer('odometer_km'),
+    category: text('category').$type<ExpenseCategory>().notNull(),
+    subtype: text('subtype').$type<ServiceSubtype>(),
+    amount: real('amount').notNull(),
+    note: text('note'),
+  },
+  (t) => [index('expenses_vehicle_date').on(t.vehicleId, t.date)],
+);
+
+export type Expense = typeof expenses.$inferSelect;
+
+export const REMINDER_KINDS = ['inspection', 'traffic_insurance', 'casco', 'road_tax', 'service', 'custom'] as const;
+export type ReminderKind = (typeof REMINDER_KINDS)[number];
+
+/**
+ * Tarih ve/veya km ile hatırlatma. Kurallar src/features/reminders/rules.ts'te:
+ * - muayene, sigorta, kasko, özel: due_date saklanır; yenilenince interval_months kadar ileri gider.
+ * - MTV: tarih takvimden (Ocak/Temmuz) hesaplanır; satır yalnızca açık/kapalı ve son ödeme.
+ * - bakım: son yapılış (tarih + km) + aralık (ay ve/veya km).
+ */
+export const reminders = sqliteTable(
+  'reminders',
+  {
+    ...syncColumns,
+    vehicleId: text('vehicle_id').notNull(),
+    kind: text('kind').$type<ReminderKind>().notNull(),
+    /** Bakımda alt tür adı ya da özel hatırlatmanın başlığı. */
+    title: text('title'),
+    dueDate: integer('due_date'),
+    dueKm: integer('due_km'),
+    intervalMonths: integer('interval_months'),
+    intervalKm: integer('interval_km'),
+    lastDoneDate: integer('last_done_date'),
+    lastDoneKm: integer('last_done_km'),
+    enabled: integer('enabled', { mode: 'boolean' })
+      .notNull()
+      .default(sql`1`),
+  },
+  (t) => [index('reminders_vehicle').on(t.vehicleId)],
+);
+
+export type Reminder = typeof reminders.$inferSelect;
