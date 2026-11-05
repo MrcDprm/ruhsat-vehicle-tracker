@@ -42,3 +42,6 @@ coverage/
 # işletim sistemi
 .DS_Store
 Thumbs.db
+
+# Python (tools/ içindeki üretim betikleri)
+__pycache__/
