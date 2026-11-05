@@ -4,16 +4,19 @@ import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
 import { setActiveVehicleId } from '@/features/vehicles/repository';
+import { useI18n } from '@/i18n';
 
 import { requestSync } from './notifications';
 
 /**
  * Görünmez bileşen (kök yerleşimde, göçlerden sonra):
- * - açılışta ve uygulama her öne geldiğinde bildirim planını yeniler (gün değişmiş, izin Ayarlar'dan açılmış olabilir);
+ * - açılışta, dil değişince ve uygulama her öne geldiğinde bildirim planını yeniler (gün değişmiş, izin Ayarlar'dan
+ *   açılmış olabilir);
  * - bildirime dokunulunca o aracı seçip Özet'i açar (uygulama kapalıyken dokunulsa da).
  */
 export function NotificationBridge() {
   const response = Notifications.useLastNotificationResponse();
+  const { locale } = useI18n();
 
   useEffect(() => {
     const vehicleId = response?.notification.request.content.data?.vehicleId;
@@ -24,8 +27,13 @@ export function NotificationBridge() {
     }
   }, [response]);
 
+  // Açılışta ve dil değişince: bildirim metinleri yeni dille hemen yeniden kurulur. Dil bilgisi buradan, React
+  // bağlamından gelir; dil modülü bildirim modülünü bilmez, ikisi birbirini çağırmaz.
   useEffect(() => {
     requestSync();
+  }, [locale]);
+
+  useEffect(() => {
     const sub = AppState.addEventListener('change', (s) => {
       if (s === 'active') requestSync();
     });

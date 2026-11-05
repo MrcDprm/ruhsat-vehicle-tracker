@@ -1,7 +1,7 @@
 import type { Expense, FuelEntry, Reminder, Vehicle } from '@/db/schema';
 
 import { reminderTitle } from './labels';
-import { daysBetween, dueInfo, kmPerDay, notificationTimes } from './rules';
+import { daysBetween, dueInfo, kmPerDay, notificationTimes, type DueContext } from './rules';
 
 // Bildirim planı: bütün araçların açık hatırlatmalarından gelecekteki bildirimler. Saf; zamanlama notifications.ts'te.
 
@@ -13,6 +13,8 @@ export type PlannedNotification = {
   title: string;
   body: string;
   vehicleId: string;
+  /** Bildirim geldiğinde uygulama simgesinde görünecek sayı: o an gecikmiş ya da yaklaşan hatırlatma sayısı. */
+  badge: number;
 };
 
 export type PlanData = {
@@ -29,21 +31,43 @@ export type Formatters = {
   number: (n: number) => string;
 };
 
-export function planNotifications(data: PlanData, now: number, f: Formatters): PlannedNotification[] {
-  const plan: PlannedNotification[] = [];
-  for (const vehicle of data.vehicles) {
-    const points = [
-      ...data.fuel.filter((e) => e.vehicleId === vehicle.id),
-      ...data.expenses.filter(
-        (e): e is typeof e & { odometerKm: number } => e.vehicleId === vehicle.id && e.odometerKm !== null,
-      ),
-    ].map((p) => ({ date: p.date, odometerKm: p.odometerKm }));
-    const perDay = kmPerDay(points, now);
-    const reading = points.filter((p) => p.odometerKm === vehicle.odometerKm).sort((a, b) => b.date - a.date)[0];
-    const ctx = { now, odometerKm: vehicle.odometerKm, kmPerDay: perDay, readingDate: reading?.date };
+/** Aracın km bilgisi: günlük ortalama bugüne kadarki kayıtlardan, son okuma ve günü. Tarih (now) sonra verilir. */
+function usage(vehicle: Vehicle, data: PlanData, now: number): Omit<DueContext, 'now'> {
+  const points = [
+    ...data.fuel.filter((e) => e.vehicleId === vehicle.id),
+    ...data.expenses.filter(
+      (e): e is typeof e & { odometerKm: number } => e.vehicleId === vehicle.id && e.odometerKm !== null,
+    ),
+  ].map((p) => ({ date: p.date, odometerKm: p.odometerKm }));
+  const reading = points.filter((p) => p.odometerKm === vehicle.odometerKm).sort((a, b) => b.date - a.date)[0];
+  return { odometerKm: vehicle.odometerKm, kmPerDay: kmPerDay(points, now), readingDate: reading?.date };
+}
 
-    for (const r of data.reminders) {
-      if (r.vehicleId !== vehicle.id || !r.enabled) continue;
+const active = (data: PlanData, vehicle: Vehicle) =>
+  data.reminders.filter((r) => r.vehicleId === vehicle.id && r.enabled);
+
+/**
+ * Belirli bir anda (at) gecikmiş ya da yaklaşan hatırlatma sayısı, bütün araçlarda. Uygulama simgesindeki sayı budur;
+ * gelecekteki bir bildirim için o günkü değer hesaplanır (km tahmini bugünkü kayıtlardan).
+ */
+export function urgentCount(data: PlanData, at: number, now: number = at): number {
+  let count = 0;
+  for (const vehicle of data.vehicles) {
+    const ctx = { ...usage(vehicle, data, now), now: at };
+    for (const r of active(data, vehicle)) {
+      const { state } = dueInfo(r, ctx);
+      if (state === 'overdue' || state === 'soon') count++;
+    }
+  }
+  return count;
+}
+
+export function planNotifications(data: PlanData, now: number, f: Formatters): PlannedNotification[] {
+  const plan: Omit<PlannedNotification, 'badge'>[] = [];
+  for (const vehicle of data.vehicles) {
+    const ctx = { ...usage(vehicle, data, now), now };
+
+    for (const r of active(data, vehicle)) {
       const info = dueInfo(r, ctx);
       if (info.dueDate === null) continue;
       const name = reminderTitle(r, f.t);
@@ -69,5 +93,8 @@ export function planNotifications(data: PlanData, now: number, f: Formatters): P
       }
     }
   }
-  return plan.sort((a, b) => a.at - b.at).slice(0, MAX_SCHEDULED);
+  return plan
+    .sort((a, b) => a.at - b.at)
+    .slice(0, MAX_SCHEDULED)
+    .map((n) => ({ ...n, badge: urgentCount(data, n.at, now) }));
 }

@@ -7,18 +7,18 @@ import { db } from '@/db/client';
 import { expenses, fuelEntries, reminders, vehicles } from '@/db/schema';
 import { currentLocale, translate } from '@/i18n';
 
-import { planNotifications } from './plan';
+import { planNotifications, urgentCount } from './plan';
 
 // Yerel bildirimler: sunucu yok, hatırlatmalar telefonda zamanlanır (docs/plan.md "Bildirim").
 // Her eşitlemede bekleyen bildirimlerin hepsi silinip plan baştan kurulur: kayıt değişince eski bildirim kalmaz.
 
-// Uygulama açıkken gelen bildirim de üstte görünür; ses ve simge rozeti yok.
+// Uygulama açıkken gelen bildirim de üstte görünür, sesle gelir ve simgedeki sayıyı günceller.
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
     shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
   }),
 });
 
@@ -34,7 +34,7 @@ export async function ensurePermission(): Promise<boolean> {
   const state = await permissionState();
   if (state !== 'undetermined') return state === 'granted';
   const { status } = await Notifications.requestPermissionsAsync({
-    ios: { allowAlert: true, allowSound: true, allowBadge: false },
+    ios: { allowAlert: true, allowSound: true, allowBadge: true },
   });
   return status === 'granted';
 }
@@ -49,19 +49,19 @@ export async function syncNotifications(): Promise<void> {
   ]);
   const locale = currentLocale();
   const tag = locale === 'tr' ? 'tr-TR' : 'en-GB';
-  const plan = planNotifications(
-    { vehicles: vehicleList, reminders: reminderList, fuel: fuelList, expenses: expenseList },
-    Date.now(),
-    {
-      t: (key, params) => translate(locale, key, params),
-      date: (ms) => new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'long', year: 'numeric' }).format(ms),
-      number: (n) => new Intl.NumberFormat(tag, { maximumFractionDigits: 0 }).format(n),
-    },
-  );
+  const data = { vehicles: vehicleList, reminders: reminderList, fuel: fuelList, expenses: expenseList };
+  const now = Date.now();
+  // Simgedeki sayı şimdiki duruma çekilir: masraf girilip hatırlatma ilerleyince hemen düşer.
+  await Notifications.setBadgeCountAsync(urgentCount(data, now)).catch(() => false);
+  const plan = planNotifications(data, now, {
+    t: (key, params) => translate(locale, key, params),
+    date: (ms) => new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'long', year: 'numeric' }).format(ms),
+    number: (n) => new Intl.NumberFormat(tag, { maximumFractionDigits: 0 }).format(n),
+  });
   await Notifications.cancelAllScheduledNotificationsAsync();
   for (const n of plan) {
     await Notifications.scheduleNotificationAsync({
-      content: { title: n.title, body: n.body, data: { vehicleId: n.vehicleId } },
+      content: { title: n.title, body: n.body, sound: 'default', badge: n.badge, data: { vehicleId: n.vehicleId } },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: n.at },
     });
   }
