@@ -23,24 +23,23 @@ type Fill = { daysAgo: number; km: number; price: number } & ({ per100: number }
 
 const START_KM = 83_210;
 const FIRST_FILL_LITERS = 40.6;
+// Son dolum bugün: ana ekrandaki "Bu ay" kartı ayın hangi günü olursa olsun boş görünmesin.
 const FILLS: Fill[] = [
-  { daysAgo: 178, km: 0, price: 52.9, per100: 0 },
-  { daysAgo: 164, km: 560, price: 53.4, per100: 6.42 },
-  { daysAgo: 150, km: 545, price: 53.95, per100: 6.31 },
-  { daysAgo: 137, km: 580, price: 54.6, per100: 6.55 },
-  { daysAgo: 123, km: 530, price: 54.6, per100: 6.38 },
-  { daysAgo: 112, km: 300, price: 55.25, partialLiters: 18 },
-  { daysAgo: 106, km: 260, price: 55.25, per100: 6.47 },
-  { daysAgo: 92, km: 555, price: 55.8, per100: 6.36 },
-  { daysAgo: 78, km: 570, price: 56.45, per100: 6.61 },
-  { daysAgo: 64, km: 540, price: 56.45, per100: 6.44 },
-  { daysAgo: 50, km: 565, price: 57.3, per100: 6.29 },
-  { daysAgo: 36, km: 550, price: 57.9, per100: 6.4 },
-  { daysAgo: 22, km: 575, price: 58.65, per100: 6.52 },
-  { daysAgo: 8, km: 540, price: 59.1, per100: 6.35 },
+  { daysAgo: 170, km: 0, price: 52.9, per100: 0 },
+  { daysAgo: 156, km: 560, price: 53.4, per100: 6.42 },
+  { daysAgo: 142, km: 545, price: 53.95, per100: 6.31 },
+  { daysAgo: 129, km: 580, price: 54.6, per100: 6.55 },
+  { daysAgo: 115, km: 530, price: 54.6, per100: 6.38 },
+  { daysAgo: 104, km: 300, price: 55.25, partialLiters: 18 },
+  { daysAgo: 98, km: 260, price: 55.25, per100: 6.47 },
+  { daysAgo: 84, km: 555, price: 55.8, per100: 6.36 },
+  { daysAgo: 70, km: 570, price: 56.45, per100: 6.61 },
+  { daysAgo: 56, km: 540, price: 56.45, per100: 6.44 },
+  { daysAgo: 42, km: 565, price: 57.3, per100: 6.29 },
+  { daysAgo: 28, km: 550, price: 57.9, per100: 6.4 },
+  { daysAgo: 14, km: 575, price: 58.65, per100: 6.52 },
+  { daysAgo: 0, km: 540, price: 59.1, per100: 6.35 },
 ];
-/** Son dolumdan bugüne yapılan yol (aracın göstergesi). */
-const KM_SINCE_LAST_FILL = 137;
 const STATIONS = ['Kadıköy', 'Ataşehir', 'Kozyatağı', 'TEM'];
 
 type Spend = {
@@ -72,7 +71,8 @@ const SPENDS: Spend[] = [
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export function buildDemoData(now: number, locale: Locale): DemoData {
-  const at = (daysAgo: number) => normalizeDate(now - daysAgo * DAY);
+  // Uygulama tarihleri günün öğlesine sabitler; bugünkü kayıt öğleden önce yüklenirse geleceğe düşmesin.
+  const at = (daysAgo: number) => Math.min(normalizeDate(now - daysAgo * DAY), now - 60_000);
 
   // Dolumlar: km birikerek artar; tam dolumun litresi, aradaki kısmi dolumlar düşülerek tüketimden bulunur.
   const fuel: FuelValues[] = [];
@@ -144,7 +144,7 @@ export function buildDemoData(now: number, locale: Locale): DemoData {
       plate: '34 RHS 26',
       fuelTypes: ['petrol'],
       tankLiters: 50,
-      odometerKm: km + KM_SINCE_LAST_FILL,
+      odometerKm: km,
     },
     setup,
     fuel,
