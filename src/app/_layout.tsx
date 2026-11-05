@@ -7,15 +7,17 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { Linking, View } from 'react-native';
 
 import migrations from '../../drizzle/migrations';
+import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
+import { APP_VERSION, CONTACT_EMAIL } from '@/constants/app';
 import { db } from '@/db/client';
 import { useOnboarded } from '@/features/account/onboarding';
 import { startStore } from '@/features/ads/purchase';
 import { NotificationBridge } from '@/features/reminders/NotificationBridge';
-import { I18nProvider } from '@/i18n';
+import { I18nProvider, useI18n } from '@/i18n';
 import { SyncBridge } from '@/sync/SyncBridge';
 import { fonts } from '@/theme/colors';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
@@ -93,15 +95,26 @@ export default function RootLayout() {
   );
 }
 
-// Göç başarısızsa uygulama veriye dokunmadan durur; kullanıcı ne olduğunu görür.
+// Göç başarısızsa uygulama veriye dokunmadan durur. Kullanıcıya sade bir açıklama gösterilir; ham hata metni yalnız
+// geliştirmede ekranda görünür, yayında yalnız kullanıcı "E-postayla bildir" derse e-postanın içine girer.
 function MigrationError({ message }: { message: string }) {
   const { colors } = useTheme();
+  const { t } = useI18n();
+  const report = () =>
+    Linking.openURL(
+      `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Ruhsat ${APP_VERSION}: ${t('migration.subject')}`)}` +
+        `&body=${encodeURIComponent(message.slice(0, 1500))}`,
+    ).catch(() => {});
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', padding: 24, gap: 8 }}>
-      <Text variant="heading">Veritabanı güncellenemedi / Database update failed</Text>
-      <Text tone="muted" selectable>
-        {message}
-      </Text>
+    <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', padding: 24, gap: 12 }}>
+      <Text variant="heading">{t('migration.title')}</Text>
+      <Text tone="muted">{t('migration.text')}</Text>
+      {__DEV__ ? (
+        <Text variant="caption" tone="rust" selectable>
+          {message}
+        </Text>
+      ) : null}
+      <Button title={t('migration.report')} kind="secondary" onPress={report} />
     </View>
   );
 }

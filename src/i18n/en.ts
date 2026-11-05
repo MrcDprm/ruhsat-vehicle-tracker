@@ -324,6 +324,11 @@ export const en: Record<keyof typeof tr, string> = {
   'account.deleteFailed': 'Couldn’t delete the account. Check your connection and try again.',
   'settings.wipe.textAccount':
     'Your cars, entries and reminders will be deleted from this phone and your account. You may want to export them first.',
+  'migration.title': 'Couldn’t update your entries',
+  'migration.text':
+    'The new version couldn’t update the entries on this phone. Nothing was changed. Please let us know so we can ship a fix right away.',
+  'migration.report': 'Report by email',
+  'migration.subject': 'database update failed',
   'widget.next': 'Next up',
   'widget.consumption': 'Last consumption',
   'widget.days': '%d days',
