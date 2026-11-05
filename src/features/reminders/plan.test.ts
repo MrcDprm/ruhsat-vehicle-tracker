@@ -1,6 +1,6 @@
 import type { Reminder, Vehicle } from '@/db/schema';
 
-import { MAX_SCHEDULED, planNotifications, type Formatters } from './plan';
+import { MAX_SCHEDULED, planNotifications, urgentCount, type Formatters } from './plan';
 
 const D = (y: number, m: number, d: number, h = 12) => new Date(y, m - 1, d, h).getTime();
 const NOW = D(2026, 11, 5);
@@ -138,5 +138,39 @@ describe('planNotifications', () => {
     const plan = planNotifications({ ...empty, vehicles: [vehicle('v1', 'Clio')], reminders }, NOW, f);
     expect(plan).toHaveLength(MAX_SCHEDULED);
     expect(plan.every((p, i) => i === 0 || plan[i - 1].at <= p.at)).toBe(true);
+  });
+});
+
+describe('simge sayısı (badge)', () => {
+  const data = {
+    ...empty,
+    vehicles: [vehicle('v1', 'Clio'), vehicle('v2', 'Doblo')],
+    reminders: [
+      reminder({ vehicleId: 'v1', kind: 'inspection', dueDate: D(2026, 11, 20) }),
+      reminder({ vehicleId: 'v2', kind: 'inspection', dueDate: D(2026, 11, 10) }),
+      reminder({ vehicleId: 'v2', kind: 'casco', dueDate: D(2027, 6, 1) }),
+      reminder({ vehicleId: 'v2', kind: 'traffic_insurance', dueDate: D(2026, 11, 1), enabled: false }),
+    ],
+  };
+
+  it('bugün: gecikmiş ve yaklaşan, bütün araçlarda; kapalı ve uzak olan sayılmaz', () => {
+    expect(urgentCount(data, NOW)).toBe(2);
+    expect(urgentCount({ ...data, reminders: [] }, NOW)).toBe(0);
+  });
+
+  it('her bildirim geldiği günkü sayıyı taşır', () => {
+    const plan = planNotifications(data, NOW, f);
+    expect(plan.map((p) => [f.date(p.at), p.badge])).toEqual([
+      ['2026-11-9', 2],
+      ['2026-11-10', 2],
+      ['2026-11-13', 2],
+      ['2026-11-19', 2],
+      ['2026-11-20', 2],
+      // Kaskoya 30 gün kala o da yaklaşanlara girer; muayeneler hâlâ yapılmamışsa gecikmiş sayılır.
+      ['2027-5-2', 3],
+      ['2027-5-25', 3],
+      ['2027-5-31', 3],
+      ['2027-6-1', 3],
+    ]);
   });
 });
