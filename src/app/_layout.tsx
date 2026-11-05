@@ -12,8 +12,10 @@ import { View } from 'react-native';
 import migrations from '../../drizzle/migrations';
 import { Text } from '@/components/Text';
 import { db } from '@/db/client';
+import { useOnboarded } from '@/features/account/onboarding';
 import { NotificationBridge } from '@/features/reminders/NotificationBridge';
 import { I18nProvider } from '@/i18n';
+import { SyncBridge } from '@/sync/SyncBridge';
 import { fonts } from '@/theme/colors';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 
@@ -21,6 +23,7 @@ SplashScreen.preventAutoHideAsync();
 
 function AppStack() {
   const { colors, scheme } = useTheme();
+  const onboarded = useOnboarded();
   const header = {
     headerStyle: { backgroundColor: colors.background },
     headerTintColor: colors.ink,
@@ -32,21 +35,30 @@ function AppStack() {
     <>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <NotificationBridge />
+      <SyncBridge />
       <Stack screenOptions={header}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="vehicles/index"
-          options={{
-            headerShown: false,
-            presentation: 'formSheet',
-            sheetAllowedDetents: [0.5, 1],
-            sheetGrabberVisible: true,
-          }}
-        />
-        <Stack.Screen name="vehicles/edit" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="fuel/edit" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="expenses/edit" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="reminders/setup" options={{ presentation: 'modal' }} />
+        {/* İlk açılış seçimi yapılmadıysa yalnız karşılama ve giriş ekranları açılabilir. */}
+        <Stack.Protected guard={onboarded}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="vehicles/index"
+            options={{
+              headerShown: false,
+              presentation: 'formSheet',
+              sheetAllowedDetents: [0.5, 1],
+              sheetGrabberVisible: true,
+            }}
+          />
+          <Stack.Screen name="vehicles/edit" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="fuel/edit" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="expenses/edit" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="reminders/setup" options={{ presentation: 'modal' }} />
+        </Stack.Protected>
+        <Stack.Protected guard={!onboarded}>
+          <Stack.Screen name="welcome" options={{ headerShown: false }} />
+        </Stack.Protected>
+        <Stack.Screen name="auth/email" options={{ title: '' }} />
+        <Stack.Screen name="auth/code" options={{ title: '' }} />
       </Stack>
     </>
   );

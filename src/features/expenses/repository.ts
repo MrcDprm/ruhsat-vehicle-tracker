@@ -4,7 +4,7 @@ import { randomUUID } from 'expo-crypto';
 
 import { db } from '@/db/client';
 import { expenses, type Expense } from '@/db/schema';
-import { requestSync } from '@/features/reminders/notifications';
+import { dataChanged } from '@/sync/changes';
 import { advanceReminders } from '@/features/reminders/repository';
 import { raiseOdometer } from '@/features/vehicles/repository';
 
@@ -21,7 +21,7 @@ export async function createExpense(vehicleId: string, values: ExpenseValues): P
   const id = randomUUID();
   await db.insert(expenses).values({ ...values, id, vehicleId, createdAt: now, updatedAt: now, dirty: true });
   await afterSave(vehicleId, values);
-  requestSync();
+  dataChanged();
   return id;
 }
 
@@ -31,14 +31,14 @@ export async function updateExpense(id: string, vehicleId: string, values: Expen
     .set({ ...values, updatedAt: Date.now(), dirty: true })
     .where(eq(expenses.id, id));
   await afterSave(vehicleId, values);
-  requestSync();
+  dataChanged();
 }
 
 /** Kayıt kalır, işaretlenir: hesaplı kullanıcıda silme diğer cihaza da eşitlenir. */
 export async function deleteExpense(id: string): Promise<void> {
   const now = Date.now();
   await db.update(expenses).set({ deletedAt: now, updatedAt: now, dirty: true }).where(eq(expenses.id, id));
-  requestSync();
+  dataChanged();
 }
 
 export async function getExpense(id: string): Promise<Expense | undefined> {
