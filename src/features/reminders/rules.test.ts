@@ -110,6 +110,14 @@ describe('kmPerDay', () => {
     ];
     expect(kmPerDay(points, NOW)).toBeCloseTo(40);
   });
+  it('bugünün öğlesine yazılan okuma sabah da sayılır', () => {
+    const morning = new Date(2026, 10, 5, 8, 30).getTime();
+    const points = [
+      { date: NOW - 50 * 86_400_000, odometerKm: 86_000 },
+      { date: NOW, odometerKm: 88_000 }, // bugün 12:00
+    ];
+    expect(kmPerDay(points, morning)).toBeCloseTo(40);
+  });
   it('bir yıldan eski okumaları saymaz', () => {
     const points = [
       { date: NOW - 800 * 86_400_000, odometerKm: 10_000 },

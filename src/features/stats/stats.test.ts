@@ -1,4 +1,4 @@
-import { consumptionSeries, monthlySpend, rangeStart, summarizeRange, yearlyTotals } from './stats';
+import { consumptionSeries, monthlySpend, rangeEnd, rangeStart, summarizeRange, yearlyTotals } from './stats';
 
 const D = (y: number, m: number, d: number) => new Date(y, m - 1, d, 12).getTime();
 const day = (ms: number) => {
@@ -88,6 +88,25 @@ describe('monthlySpend', () => {
   it('yıl geçişinde aylar doğru sırada', () => {
     const bars = monthlySpend([], [], D(2025, 11, 1), D(2026, 2, 10));
     expect(bars.map((b) => b.key)).toEqual(['2025-11', '2025-12', '2026-01', '2026-02']);
+  });
+});
+
+describe('rangeEnd', () => {
+  it('bugünün son anı: öğleye yazılan bugünkü kayıt sabah da aralıkta', () => {
+    const morning = new Date(2026, 10, 5, 8, 30).getTime();
+    const end = rangeEnd(morning);
+    expect(end).toBe(new Date(2026, 10, 6).getTime() - 1);
+    // Uygulama bugünkü kaydı öğleye yazar (normalizeDate); bitiş "şimdi" olsaydı öğleye kadar sayılmazdı.
+    const today = fuel(D(2026, 11, 5), 10_000, 40, 2000);
+    const from = rangeStart('3m', morning, null);
+    expect(summarizeRange([today], [], from, end).total).toBe(2000);
+    expect(summarizeRange([today], [], from, morning).total).toBe(0);
+    expect(monthlySpend([today], [], from, end).at(-1)?.total).toBe(2000);
+  });
+
+  it('yarının kaydı aralık dışında kalır', () => {
+    const tomorrow = fuel(D(2026, 11, 6), 10_000, 40, 2000);
+    expect(summarizeRange([tomorrow], [], rangeStart('3m', NOW, null), rangeEnd(NOW)).total).toBe(0);
   });
 });
 

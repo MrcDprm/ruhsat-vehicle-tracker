@@ -93,8 +93,11 @@ export const USAGE = { windowDays: 365, minSpanDays: 14 } as const;
  * En az iki hafta aralıklı iki okuma yoksa tahmin yapılmaz.
  */
 export function kmPerDay(points: readonly { date: number; odometerKm: number }[], now: number): number | null {
+  // Bugünkü okuma günün öğlesine yazılır; sabah da sayılsın diye üst sınır bugünün sonu.
+  const today = new Date(now);
+  const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).getTime() - 1;
   const recent = points
-    .filter((p) => p.date <= now && p.date >= now - USAGE.windowDays * DAY)
+    .filter((p) => p.date <= endOfToday && p.date >= now - USAGE.windowDays * DAY)
     .sort((a, b) => a.date - b.date);
   if (recent.length < 2) return null;
   const first = recent[0];
