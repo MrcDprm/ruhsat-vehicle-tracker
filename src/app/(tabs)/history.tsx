@@ -47,9 +47,12 @@ const rowStyle = ({ pressed }: { pressed: boolean }) =>
 function ExpenseRow({ expense }: { expense: Expense }) {
   const { t, number, money } = useI18n();
   const { colors } = useTheme();
-  const title = expense.subtype
-    ? `${t('expense.category.service')} · ${t(`expense.subtype.${expense.subtype}`)}`
-    : t(`expense.category.${expense.category}`);
+  // Bakımda yapılanlar başlıkta: "Bakım · Yağ, Filtre".
+  const subtypes = expense.subtypes ?? [];
+  const title =
+    subtypes.length > 0
+      ? `${t('expense.category.service')} · ${subtypes.map((s) => t(`expense.subtype.${s}`)).join(', ')}`
+      : t(`expense.category.${expense.category}`);
   const details = [expense.odometerKm !== null ? `${number(expense.odometerKm)} ${t('common.km')}` : null, expense.note]
     .filter(Boolean)
     .join(' · ');
@@ -63,7 +66,7 @@ function ExpenseRow({ expense }: { expense: Expense }) {
       <View style={{ flex: 1, gap: 2 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <SymbolView
-            name={expense.subtype ? SUBTYPE_ICONS[expense.subtype] : CATEGORY_ICONS[expense.category]}
+            name={subtypes.length === 1 ? SUBTYPE_ICONS[subtypes[0]] : CATEGORY_ICONS[expense.category]}
             size={14}
             tintColor={colors.muted}
           />

@@ -83,7 +83,7 @@ export default function ExpenseEditScreen() {
   const [form, setForm] = useState<ExpenseInput>(() => ({
     date: Date.now(),
     category: initialCategory && EXPENSE_CATEGORIES.includes(initialCategory) ? initialCategory : null,
-    subtype: null,
+    subtypes: [],
     amount: '',
     odometerKm: '',
     note: '',
@@ -104,7 +104,7 @@ export default function ExpenseEditScreen() {
         const values: ExpenseInput = {
           date: e.date,
           category: e.category,
-          subtype: e.subtype,
+          subtypes: e.subtypes ?? [],
           amount: toInput(e.amount, locale),
           odometerKm: e.odometerKm !== null ? String(e.odometerKm) : '',
           note: e.note ?? '',
@@ -196,21 +196,26 @@ export default function ExpenseEditScreen() {
             {form.category === 'service' ? (
               <Animated.View entering={FadeInDown.duration(220)} style={{ gap: 8 }}>
                 <Text variant="caption" tone="muted">
-                  {t('expense.subtype')}
+                  {t('expense.subtype')} · {t('expense.subtypeHint')}
                 </Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {SERVICE_SUBTYPES.map((s) => (
                     <Chip
                       key={s}
                       label={t(`expense.subtype.${s}`)}
-                      selected={form.subtype === s}
-                      onPress={() => set('subtype', s)}
+                      selected={form.subtypes.includes(s)}
+                      onPress={() =>
+                        set(
+                          'subtypes',
+                          form.subtypes.includes(s) ? form.subtypes.filter((x) => x !== s) : [...form.subtypes, s],
+                        )
+                      }
                     />
                   ))}
                 </View>
-                {errors.subtype ? (
+                {errors.subtypes ? (
                   <Text variant="caption" tone="rust">
-                    {t(errors.subtype)}
+                    {t(errors.subtypes)}
                   </Text>
                 ) : null}
               </Animated.View>

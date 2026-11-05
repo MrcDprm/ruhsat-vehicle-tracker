@@ -250,7 +250,7 @@ describe('applyExpense', () => {
   const exp = (category: Parameters<typeof applyExpense>[1]['category'], date: number, extra = {}) => ({
     category,
     date,
-    subtype: null,
+    subtypes: null,
     odometerKm: null,
     ...extra,
   });
@@ -288,7 +288,7 @@ describe('applyExpense', () => {
     expect(applyExpense(roadTax, exp('road_tax', D(2026, 7, 10)))).toEqual({ lastDoneDate: D(2026, 7, 10) });
   });
 
-  it('bakım: yalnız aynı alt türü ilerletir, km verildiyse onu da yazar', () => {
+  it('bakım: masrafta o iş yapıldıysa ilerletir (yağ + filtre → yağ), km verildiyse onu da yazar', () => {
     const oil = {
       ...inspection,
       kind: 'service' as const,
@@ -297,14 +297,19 @@ describe('applyExpense', () => {
       lastDoneDate: D(2026, 1, 1),
       lastDoneKm: 75_000,
     };
-    expect(applyExpense(oil, exp('service', D(2026, 11, 1), { subtype: 'oil', odometerKm: 88_000 }))).toEqual({
+    expect(
+      applyExpense(oil, exp('service', D(2026, 11, 1), { subtypes: ['oil', 'filter'], odometerKm: 88_000 })),
+    ).toEqual({
       lastDoneDate: D(2026, 11, 1),
       lastDoneKm: 88_000,
     });
-    expect(applyExpense(oil, exp('service', D(2026, 11, 1), { subtype: 'oil' }))).toEqual({
+    expect(applyExpense(oil, exp('service', D(2026, 11, 1), { subtypes: ['oil'] }))).toEqual({
       lastDoneDate: D(2026, 11, 1),
     });
-    expect(applyExpense(oil, exp('service', D(2026, 11, 1), { subtype: 'brake' }))).toBeNull();
-    expect(applyExpense(oil, exp('service', D(2026, 11, 1), { subtype: 'other' }))).toBeNull();
+    expect(applyExpense(oil, exp('service', D(2026, 11, 1), { subtypes: ['brake', 'tyre'] }))).toBeNull();
+    expect(applyExpense(oil, exp('service', D(2026, 11, 1), { subtypes: ['other'] }))).toBeNull();
+    expect(
+      applyExpense({ ...oil, title: 'other' }, exp('service', D(2026, 11, 1), { subtypes: ['other'] })),
+    ).toBeNull();
   });
 });

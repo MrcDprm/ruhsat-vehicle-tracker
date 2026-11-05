@@ -122,6 +122,7 @@ export const en: Record<keyof typeof tr, string> = {
   'expense.section.details': 'Details',
   'expense.amount': 'Amount',
   'expense.subtype': 'What was done?',
+  'expense.subtypeHint': 'pick all that apply',
   'expense.kmHelp': 'Add the km and the car’s odometer and service reminder move forward with it.',
   'expense.notePlaceholder': 'e.g. Oil + filter, Bosch service',
   'expense.error.category': 'Choose an expense type.',

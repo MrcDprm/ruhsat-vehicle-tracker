@@ -5,7 +5,7 @@ import { LIMITS as VEHICLE_LIMITS, parseNumber } from '@/features/vehicles/valid
 export type ExpenseInput = {
   date: number;
   category: ExpenseCategory | null;
-  subtype: ServiceSubtype | null;
+  subtypes: ServiceSubtype[];
   amount: string;
   odometerKm: string;
   note: string;
@@ -14,7 +14,8 @@ export type ExpenseInput = {
 export type ExpenseValues = {
   date: number;
   category: ExpenseCategory;
-  subtype: ServiceSubtype | null;
+  /** Yalnız bakımda; yapılanlar sabit sırada (yağ, filtre, …), tekrar etmez. */
+  subtypes: ServiceSubtype[] | null;
   amount: number;
   odometerKm: number | null;
   note: string | null;
@@ -36,11 +37,11 @@ export function validateExpense(
   const category = input.category && EXPENSE_CATEGORIES.includes(input.category) ? input.category : null;
   if (!category) errors.category = 'expense.error.category';
 
-  // Alt tür yalnız bakımda; başka türde gelse de kaydedilmez.
-  let subtype: ServiceSubtype | null = null;
+  // Alt türler yalnız bakımda (birden fazla seçilebilir: yağ + filtre); başka türde gelse de kaydedilmez.
+  let subtypes: ServiceSubtype[] | null = null;
   if (category === 'service') {
-    subtype = input.subtype && SERVICE_SUBTYPES.includes(input.subtype) ? input.subtype : null;
-    if (!subtype) errors.subtype = 'expense.error.subtype';
+    subtypes = SERVICE_SUBTYPES.filter((s) => input.subtypes.includes(s));
+    if (subtypes.length === 0) errors.subtypes = 'expense.error.subtype';
   }
 
   const amount = parseNumber(input.amount);
@@ -61,7 +62,7 @@ export function validateExpense(
     value: {
       date,
       category: category as ExpenseCategory,
-      subtype,
+      subtypes,
       amount: amount as number,
       odometerKm: odometer,
       note,

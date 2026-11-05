@@ -6,7 +6,7 @@ const NOW = new Date(2026, 10, 5, 18).getTime();
 const valid: ExpenseInput = {
   date: NOW,
   category: 'service',
-  subtype: 'oil',
+  subtypes: ['filter', 'oil', 'oil'],
   amount: '3.250,50',
   odometerKm: '88.000',
   note: '  yağ   + filtre ',
@@ -19,7 +19,7 @@ describe('validateExpense', () => {
       value: {
         date: normalizeDate(NOW),
         category: 'service',
-        subtype: 'oil',
+        subtypes: ['oil', 'filter'],
         amount: 3250.5,
         odometerKm: 88000,
         note: 'yağ + filtre',
@@ -29,23 +29,23 @@ describe('validateExpense', () => {
 
   it('km ve not isteğe bağlı', () => {
     const r = validateExpense(
-      { ...valid, category: 'parking_toll', subtype: null, odometerKm: '', note: '' },
+      { ...valid, category: 'parking_toll', subtypes: [], odometerKm: '', note: '' },
       { now: NOW },
     );
-    expect(r).toMatchObject({ ok: true, value: { odometerKm: null, note: null, subtype: null } });
+    expect(r).toMatchObject({ ok: true, value: { odometerKm: null, note: null, subtypes: null } });
   });
 
   it('bakım dışı türde alt tür kaydedilmez', () => {
     expect(validateExpense({ ...valid, category: 'wash' }, { now: NOW })).toMatchObject({
       ok: true,
-      value: { subtype: null },
+      value: { subtypes: null },
     });
   });
 
-  it('bakımda alt tür zorunlu', () => {
-    expect(validateExpense({ ...valid, subtype: null }, { now: NOW })).toMatchObject({
+  it('bakımda en az bir iş seçilmeli', () => {
+    expect(validateExpense({ ...valid, subtypes: [] }, { now: NOW })).toMatchObject({
       ok: false,
-      errors: { subtype: 'expense.error.subtype' },
+      errors: { subtypes: 'expense.error.subtype' },
     });
   });
 

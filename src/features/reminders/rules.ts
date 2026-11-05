@@ -240,7 +240,7 @@ const RENEW_WINDOW_DAYS = 60;
  */
 export function applyExpense(
   r: Pick<Reminder, 'kind' | 'title' | 'dueDate' | 'intervalMonths' | 'lastDoneDate' | 'lastDoneKm'>,
-  e: Pick<Expense, 'category' | 'subtype' | 'date' | 'odometerKm'>,
+  e: Pick<Expense, 'category' | 'subtypes' | 'date' | 'odometerKm'>,
 ): ReminderPatch | null {
   if (EXPENSE_REMINDER[e.category] !== r.kind) return null;
   const newer = r.lastDoneDate === null || e.date > r.lastDoneDate;
@@ -260,8 +260,8 @@ export function applyExpense(
     case 'road_tax':
       return newer ? { lastDoneDate: e.date } : null;
     case 'service':
-      // Bakım hatırlatması alt türe göre (yağ, fren…); "diğer" bakım bir hatırlatmayı ilerletmez.
-      if (!e.subtype || e.subtype === 'other' || r.title !== e.subtype || !newer) return null;
+      // Bakım hatırlatması alt türe göre (yağ, fren…); masrafta o iş yapıldıysa ilerler. "Diğer" hatırlatma ilerletmez.
+      if (!r.title || r.title === 'other' || !(e.subtypes ?? []).some((s) => s === r.title) || !newer) return null;
       return { lastDoneDate: e.date, ...(e.odometerKm !== null ? { lastDoneKm: e.odometerKm } : {}) };
     default:
       return null;

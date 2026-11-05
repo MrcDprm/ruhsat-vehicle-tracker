@@ -11,7 +11,7 @@ import { EXPENSE_REMINDER, applyExpense } from './rules';
  */
 export async function advanceReminders(
   vehicleId: string,
-  expense: Pick<Expense, 'category' | 'subtype' | 'date' | 'odometerKm'>,
+  expense: Pick<Expense, 'category' | 'subtypes' | 'date' | 'odometerKm'>,
 ): Promise<void> {
   const kind = EXPENSE_REMINDER[expense.category];
   if (!kind) return;

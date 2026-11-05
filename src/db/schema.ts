@@ -58,7 +58,7 @@ export const fuelEntries = sqliteTable(
 
 export type FuelEntry = typeof fuelEntries.$inferSelect;
 
-// Masraf türleri (docs/plan.md "Bakım, masraf ve hatırlatmalar"). Bakımın alt türü subtype'ta.
+// Masraf türleri (docs/plan.md "Bakım, masraf ve hatırlatmalar"). Bakımda yapılanlar subtypes'ta (birden fazla olabilir: yağ + filtre).
 export const EXPENSE_CATEGORIES = [
   'service',
   'inspection',
@@ -84,7 +84,7 @@ export const expenses = sqliteTable(
     /** İsteğe bağlı: otopark ya da ceza için km anlamsız. */
     odometerKm: integer('odometer_km'),
     category: text('category').$type<ExpenseCategory>().notNull(),
-    subtype: text('subtype').$type<ServiceSubtype>(),
+    subtypes: text('subtypes', { mode: 'json' }).$type<ServiceSubtype[]>(),
     amount: real('amount').notNull(),
     note: text('note'),
   },

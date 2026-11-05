@@ -129,6 +129,7 @@ export const tr = {
   'expense.section.details': 'Ayrıntı',
   'expense.amount': 'Tutar',
   'expense.subtype': 'Ne yapıldı?',
+  'expense.subtypeHint': 'birden fazla seçebilirsin',
   'expense.kmHelp': 'Km’yi yazarsan araç km’si ve bakım hatırlatması buna göre ilerler.',
   'expense.notePlaceholder': 'ör. Yağ + filtre, Bosch servis',
   'expense.error.category': 'Masraf türünü seç.',
