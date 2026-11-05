@@ -13,6 +13,7 @@ import migrations from '../../drizzle/migrations';
 import { Text } from '@/components/Text';
 import { db } from '@/db/client';
 import { useOnboarded } from '@/features/account/onboarding';
+import { startStore } from '@/features/ads/purchase';
 import { NotificationBridge } from '@/features/reminders/NotificationBridge';
 import { I18nProvider } from '@/i18n';
 import { SyncBridge } from '@/sync/SyncBridge';
@@ -24,6 +25,10 @@ SplashScreen.preventAutoHideAsync();
 function AppStack() {
   const { colors, scheme } = useTheme();
   const onboarded = useOnboarded();
+  // Mağaza bağlantısı açılışta bir kez: fiyat ve "reklamlar kaldırıldı" hakkı sessizce doğrulanır (Expo Go'da kapalı).
+  useEffect(() => {
+    startStore();
+  }, []);
   const header = {
     headerStyle: { backgroundColor: colors.background },
     headerTintColor: colors.ink,
