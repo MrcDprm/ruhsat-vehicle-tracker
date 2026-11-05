@@ -4,6 +4,7 @@ import { randomUUID } from 'expo-crypto';
 
 import { db } from '@/db/client';
 import { fuelEntries, type FuelEntry } from '@/db/schema';
+import { requestSync } from '@/features/reminders/notifications';
 import { raiseOdometer } from '@/features/vehicles/repository';
 
 import type { FuelValues } from './validation';
@@ -13,6 +14,7 @@ export async function createFuelEntry(vehicleId: string, values: FuelValues): Pr
   const id = randomUUID();
   await db.insert(fuelEntries).values({ ...values, id, vehicleId, createdAt: now, updatedAt: now, dirty: true });
   await raiseOdometer(vehicleId, values.odometerKm);
+  requestSync();
   return id;
 }
 
@@ -22,12 +24,14 @@ export async function updateFuelEntry(id: string, vehicleId: string, values: Fue
     .set({ ...values, updatedAt: Date.now(), dirty: true })
     .where(eq(fuelEntries.id, id));
   await raiseOdometer(vehicleId, values.odometerKm);
+  requestSync();
 }
 
 /** Kayıt kalır, işaretlenir: hesaplı kullanıcıda silme diğer cihaza da eşitlenir. */
 export async function deleteFuelEntry(id: string): Promise<void> {
   const now = Date.now();
   await db.update(fuelEntries).set({ deletedAt: now, updatedAt: now, dirty: true }).where(eq(fuelEntries.id, id));
+  requestSync();
 }
 
 export async function getFuelEntry(id: string): Promise<FuelEntry | undefined> {

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { db } from '@/db/client';
 import { expenses, fuelEntries, reminders, vehicles, type Vehicle } from '@/db/schema';
+import { requestSync } from '@/features/reminders/notifications';
 
 import type { VehicleValues } from './validation';
 
@@ -24,6 +25,7 @@ export async function updateVehicle(id: string, values: VehicleValues): Promise<
     .update(vehicles)
     .set({ ...values, updatedAt: Date.now(), dirty: true })
     .where(eq(vehicles.id, id));
+  requestSync();
 }
 
 /**
@@ -43,6 +45,7 @@ export async function deleteVehicle(id: string): Promise<void> {
         .run();
     }
   });
+  requestSync();
 }
 
 /**

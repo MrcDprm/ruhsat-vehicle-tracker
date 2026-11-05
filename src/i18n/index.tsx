@@ -44,6 +44,12 @@ function readPreference(): LocalePreference {
   return v === 'tr' || v === 'en' ? v : 'system';
 }
 
+/** React dışındaki kod için (bildirim metinleri) geçerli dil. */
+export function currentLocale(): Locale {
+  const p = readPreference();
+  return p === 'system' ? systemLocale() : p;
+}
+
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [preference, setPref] = useState<LocalePreference>(readPreference);
   const locale = preference === 'system' ? systemLocale() : preference;

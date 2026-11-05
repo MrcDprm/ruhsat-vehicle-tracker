@@ -16,6 +16,7 @@ import { Toggle } from '@/components/Toggle';
 import { SERVICE_SUBTYPES, type Reminder, type ServiceSubtype } from '@/db/schema';
 import { SUBTYPE_ICONS } from '@/features/expenses/categories';
 import { normalizeDate } from '@/features/fuel/validation';
+import { ensurePermission, requestSync } from '@/features/reminders/notifications';
 import { getReminders, saveReminders } from '@/features/reminders/repository';
 import { inspectionDue, roadTaxDue, serviceDue } from '@/features/reminders/rules';
 import {
@@ -152,7 +153,7 @@ export default function ReminderSetupScreen() {
     );
   };
 
-  const save = () => {
+  const save = async () => {
     const result = buildReminders(form, { now, odometerKm: vehicle.odometerKm, existing });
     if (!result.ok) {
       setErrors(result.errors);
@@ -163,6 +164,9 @@ export default function ReminderSetupScreen() {
     try {
       saveReminders(vehicle.id, result.drafts, existing);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      // İzin ilk hatırlatma kurulurken istenir; reddedilirse Özet'te uyarı ve sekmede rozet görünür.
+      if (result.drafts.some((d) => d.enabled)) await ensurePermission().catch(() => false);
+      requestSync();
       setDone(true);
     } catch {
       Alert.alert(t('vehicle.saveFailed'));
