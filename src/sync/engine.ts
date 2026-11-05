@@ -5,6 +5,7 @@ import { useSyncExternalStore } from 'react';
 import { db } from '@/db/client';
 import { expenses, fuelEntries, reminders, vehicles } from '@/db/schema';
 import { requestSync as requestNotificationSync } from '@/features/reminders/notifications';
+import { requestWidgetSync } from '@/features/widget/sync';
 
 import { sessionState, supabase } from './client';
 import {
@@ -206,7 +207,10 @@ async function run(): Promise<void> {
     Storage.setItemSync(cursorKey(uid), String(newCursor));
     Storage.setItemSync(lastKey(uid), String(now));
     setStatus({ state: 'idle', lastSyncAt: now, rejected });
-    if (changed) requestNotificationSync();
+    if (changed) {
+      requestNotificationSync();
+      requestWidgetSync();
+    }
   } catch (e) {
     setStatus({ state: 'error', lastSyncAt, rejected: status.rejected, reason: reasonOf(e) });
   }

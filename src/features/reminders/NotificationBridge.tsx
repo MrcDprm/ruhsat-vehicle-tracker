@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
 import { setActiveVehicleId } from '@/features/vehicles/repository';
+import { requestWidgetSync } from '@/features/widget/sync';
 import { useI18n } from '@/i18n';
 
 import { requestSync } from './notifications';
@@ -16,7 +17,7 @@ import { requestSync } from './notifications';
  */
 export function NotificationBridge() {
   const response = Notifications.useLastNotificationResponse();
-  const { locale } = useI18n();
+  const { locale, currencyFormat } = useI18n();
 
   useEffect(() => {
     const vehicleId = response?.notification.request.content.data?.vehicleId;
@@ -33,9 +34,17 @@ export function NotificationBridge() {
     requestSync();
   }, [locale]);
 
+  // Widget metinleri dile ve para birimi biçimine bağlı; ikisinden biri değişince yeniden yazılır.
+  useEffect(() => {
+    requestWidgetSync();
+  }, [locale, currencyFormat]);
+
   useEffect(() => {
     const sub = AppState.addEventListener('change', (s) => {
-      if (s === 'active') requestSync();
+      if (s === 'active') {
+        requestSync();
+        requestWidgetSync();
+      }
     });
     return () => sub.remove();
   }, []);
