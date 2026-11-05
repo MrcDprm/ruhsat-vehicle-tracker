@@ -6,6 +6,7 @@
   },
   "build": {
     "development": {
+      "node": "24.18.0",
       "developmentClient": true,
       "distribution": "internal",
       "environment": "development",
@@ -14,6 +15,7 @@
       }
     },
     "production": {
+      "node": "24.18.0",
       "environment": "production",
       "autoIncrement": true
     }
