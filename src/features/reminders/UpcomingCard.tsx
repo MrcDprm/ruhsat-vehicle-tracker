@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
-import { Alert, Pressable, View } from 'react-native';
+import { Alert, Linking, Pressable, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -11,6 +11,7 @@ import { fonts } from '@/theme/colors';
 import { useTheme } from '@/theme/ThemeProvider';
 
 import { reminderIcon, reminderTitle } from './labels';
+import { useNotificationPermission } from './notifications';
 import { useUpcoming, type Upcoming } from './useUpcoming';
 
 const EXPENSE_FOR: Record<string, ExpenseCategory> = {
@@ -108,6 +109,7 @@ export function UpcomingCard({ vehicle }: { vehicle: Vehicle }) {
   const { t } = useI18n();
   const { colors } = useTheme();
   const { upcoming, reminders } = useUpcoming(vehicle);
+  const permission = useNotificationPermission();
   const openSetup = () => router.push({ pathname: '/reminders/setup', params: { vehicleId: vehicle.id } });
 
   if (reminders.length === 0) {
@@ -123,6 +125,29 @@ export function UpcomingCard({ vehicle }: { vehicle: Vehicle }) {
 
   return (
     <Card style={{ overflow: 'hidden' }}>
+      {permission === 'denied' && upcoming.length > 0 ? (
+        // İzin reddedildi: bildirim gelmeyeceğini söyle, Ayarlar'a tek dokunuşla götür.
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => Linking.openSettings()}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 10,
+            padding: 12,
+            backgroundColor: colors.amberSoft,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.line,
+          }}>
+          <SymbolView name="bell.slash.fill" size={16} tintColor={colors.ink} />
+          <Text variant="caption" style={{ flex: 1 }}>
+            {t('reminder.notificationsOff')}
+          </Text>
+          <Text variant="caption" tone="amber" style={{ fontFamily: fonts.bodySemi }}>
+            {t('reminder.openSettings')}
+          </Text>
+        </Pressable>
+      ) : null}
       {upcoming.length === 0 ? (
         <Text variant="caption" tone="muted" style={{ padding: 16 }}>
           {t('reminder.allOff')}
