@@ -44,6 +44,7 @@ function AppStack() {
         <Stack.Screen name="vehicles/edit" options={{ presentation: 'modal' }} />
         <Stack.Screen name="fuel/edit" options={{ presentation: 'modal' }} />
         <Stack.Screen name="expenses/edit" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="reminders/setup" options={{ presentation: 'modal' }} />
       </Stack>
     </>
   );

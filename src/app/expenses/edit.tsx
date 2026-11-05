@@ -12,7 +12,7 @@ import { HeaderButton } from '@/components/HeaderButton';
 import { Section } from '@/components/Section';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
-import { EXPENSE_CATEGORIES, SERVICE_SUBTYPES, type ExpenseCategory } from '@/db/schema';
+import { EXPENSE_CATEGORIES, SERVICE_SUBTYPES, type ExpenseCategory, type ServiceSubtype } from '@/db/schema';
 import { CATEGORY_ICONS } from '@/features/expenses/categories';
 import { createExpense, deleteExpense, getExpense, updateExpense } from '@/features/expenses/repository';
 import { validateExpense, type ExpenseErrors, type ExpenseInput } from '@/features/expenses/validation';
@@ -75,7 +75,12 @@ function CategoryTile({
 }
 
 export default function ExpenseEditScreen() {
-  const { id, category: initialCategory } = useLocalSearchParams<{ id?: string; category?: ExpenseCategory }>();
+  // category/subtype: Özet'teki hatırlatmadan "Yapıldı" ile gelince form o türle açılır.
+  const {
+    id,
+    category: initialCategory,
+    subtype: initialSubtype,
+  } = useLocalSearchParams<{ id?: string; category?: ExpenseCategory; subtype?: ServiceSubtype }>();
   const { t, number, locale } = useI18n();
   const { colors } = useTheme();
   const { active: vehicle } = useActiveVehicle();
@@ -83,7 +88,7 @@ export default function ExpenseEditScreen() {
   const [form, setForm] = useState<ExpenseInput>(() => ({
     date: Date.now(),
     category: initialCategory && EXPENSE_CATEGORIES.includes(initialCategory) ? initialCategory : null,
-    subtypes: [],
+    subtypes: initialSubtype && SERVICE_SUBTYPES.includes(initialSubtype) ? [initialSubtype] : [],
     amount: '',
     odometerKm: '',
     note: '',

@@ -44,10 +44,12 @@ export default function VehicleEditScreen() {
   const [loaded, setLoaded] = useState(!id);
   const [focused, setFocused] = useState<keyof VehicleInput | null>(null);
   // Kayıt/silme bitince kapanış bir sonraki çizimde yapılır; o çizimde çıkış engeli artık kalkmış olur.
-  const [done, setDone] = useState<'back' | 'dismissAll' | null>(null);
+  // Yeni araçtan sonra hatırlatma kurulumu açılır (muayene, sigorta, bakım bir kez sorulur).
+  const [done, setDone] = useState<'back' | 'dismissAll' | { setup: string } | null>(null);
   useEffect(() => {
     if (done === 'back') router.back();
     else if (done === 'dismissAll') router.dismissAll();
+    else if (done) router.replace({ pathname: '/reminders/setup', params: { vehicleId: done.setup, first: '1' } });
   }, [done]);
 
   useEffect(() => {
@@ -110,7 +112,12 @@ export default function VehicleEditScreen() {
     setSaving(true);
     try {
       if (id) await updateVehicle(id, result.value);
-      else await createVehicle(result.value);
+      else {
+        const newId = await createVehicle(result.value);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        setDone({ setup: newId });
+        return;
+      }
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setDone('back');
     } catch {
