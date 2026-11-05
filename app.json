@@ -10,7 +10,11 @@
     "ios": {
       "bundleIdentifier": "com.miracdeprem.ruhsat",
       "supportsTablet": false,
-      "icon": "./assets/expo.icon",
+      "icon": {
+        "light": "./assets/icon/icon-light.png",
+        "dark": "./assets/icon/icon-dark.png",
+        "tinted": "./assets/icon/icon-tinted.png"
+      },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleAllowMixedLocalizations": true
@@ -26,9 +30,10 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#F2EEE5",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76,
+          "image": "./assets/icon/splash.png",
+          "imageWidth": 220,
           "dark": {
+            "image": "./assets/icon/splash-dark.png",
             "backgroundColor": "#15171A"
           }
         }
