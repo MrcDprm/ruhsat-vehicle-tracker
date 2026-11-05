@@ -74,6 +74,71 @@ const FIXTURES: Record<string, Fixture> = {
       });
     },
   },
+  '0002_expenses_reminders': {
+    insert: (db) => {
+      db.prepare(
+        `INSERT INTO expenses (id, created_at, updated_at, vehicle_id, date, odometer_km, category, subtype, amount, note)
+         VALUES ('x-0002', 1730900000000, 1730900000000, 'v-0000', 1730890000000, 88000, 'service', 'oil', 3250.5, 'yağ + filtre')`,
+      ).run();
+      db.prepare(
+        `INSERT INTO reminders (id, created_at, updated_at, vehicle_id, kind, due_date, interval_months, last_done_date)
+         VALUES ('r-0002', 1730900000000, 1730900000000, 'v-0000', 'inspection', 1793000000000, 24, 1730000000000)`,
+      ).run();
+    },
+    check: (db) => {
+      expect(db.prepare(`SELECT * FROM expenses WHERE id = 'x-0002'`).get()).toMatchObject({
+        vehicle_id: 'v-0000',
+        odometer_km: 88000,
+        category: 'service',
+        // 0003'te tek alt tür diziye taşındı, 0004'te eski sütun kaldırıldı.
+        subtypes: '["oil"]',
+        amount: 3250.5,
+        note: 'yağ + filtre',
+        dirty: 1,
+      });
+      expect(db.prepare(`SELECT * FROM reminders WHERE id = 'r-0002'`).get()).toMatchObject({
+        kind: 'inspection',
+        due_date: 1793000000000,
+        due_km: null,
+        interval_months: 24,
+        last_done_date: 1730000000000,
+        enabled: 1,
+      });
+    },
+  },
+  '0003_expense_subtypes': {
+    // Bu sürümde iki sütun birlikte: eski kayıt subtype'la, yeni kayıt subtypes'la yazılır.
+    insert: (db) =>
+      db
+        .prepare(
+          `INSERT INTO expenses (id, created_at, updated_at, vehicle_id, date, category, subtypes, amount)
+           VALUES ('x-0003', 1731000000000, 1731000000000, 'v-0000', 1731000000000, 'service', '["oil","filter"]', 4100)`,
+        )
+        .run(),
+    check: (db) => {
+      expect(db.prepare(`SELECT subtypes FROM expenses WHERE id = 'x-0003'`).get()).toEqual({
+        subtypes: '["oil","filter"]',
+      });
+    },
+  },
+  '0004_drop_expense_subtype': {
+    insert: (db) =>
+      db
+        .prepare(
+          `INSERT INTO expenses (id, created_at, updated_at, vehicle_id, date, category, amount)
+           VALUES ('x-0004', 1731100000000, 1731100000000, 'v-0000', 1731100000000, 'wash', 300)`,
+        )
+        .run(),
+    check: (db) => {
+      const columns = (db.prepare(`PRAGMA table_info(expenses)`).all() as { name: string }[]).map((c) => c.name);
+      expect(columns).toContain('subtypes');
+      expect(columns).not.toContain('subtype');
+      expect(db.prepare(`SELECT subtypes, amount FROM expenses WHERE id = 'x-0004'`).get()).toEqual({
+        subtypes: null,
+        amount: 300,
+      });
+    },
+  },
 };
 
 describe('veritabanı göçleri', () => {

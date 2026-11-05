@@ -31,6 +31,38 @@ export function groupByMonth<T extends Dated>(entries: readonly T[]): MonthGroup
   return groups;
 }
 
+type Sortable = { date: number; createdAt: number };
+
+export type HistoryItem<F, E> =
+  | { type: 'fuel'; id: string; date: number; createdAt: number; totalPrice: number; entry: F }
+  | { type: 'expense'; id: string; date: number; createdAt: number; totalPrice: number; entry: E };
+
+/** Yakıt ve masraf kayıtlarını tek listede birleştirir: en yeni başta, aynı günde son girilen başta. */
+export function mergeHistory<
+  F extends Sortable & { id: string; totalPrice: number },
+  E extends Sortable & { id: string; amount: number },
+>(fuel: readonly F[], expenses: readonly E[]): HistoryItem<F, E>[] {
+  const items: HistoryItem<F, E>[] = [
+    ...fuel.map((e) => ({
+      type: 'fuel' as const,
+      id: e.id,
+      date: e.date,
+      createdAt: e.createdAt,
+      totalPrice: e.totalPrice,
+      entry: e,
+    })),
+    ...expenses.map((e) => ({
+      type: 'expense' as const,
+      id: e.id,
+      date: e.date,
+      createdAt: e.createdAt,
+      totalPrice: e.amount,
+      entry: e,
+    })),
+  ];
+  return items.sort((a, b) => b.date - a.date || b.createdAt - a.createdAt);
+}
+
 /** İçinde bulunulan takvim ayındaki toplam harcama. */
 export function monthTotal(entries: readonly Dated[], now = Date.now()): number {
   const n = new Date(now);

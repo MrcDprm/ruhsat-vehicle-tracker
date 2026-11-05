@@ -1,11 +1,12 @@
-import { and, asc, eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, isNull, lt } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { randomUUID } from 'expo-crypto';
 import Storage from 'expo-sqlite/kv-store';
 import { useEffect, useState } from 'react';
 
 import { db } from '@/db/client';
-import { fuelEntries, vehicles, type Vehicle } from '@/db/schema';
+import { expenses, fuelEntries, reminders, vehicles, type Vehicle } from '@/db/schema';
+import { requestSync } from '@/features/reminders/notifications';
 
 import type { VehicleValues } from './validation';
 
@@ -24,11 +25,12 @@ export async function updateVehicle(id: string, values: VehicleValues): Promise<
     .update(vehicles)
     .set({ ...values, updatedAt: Date.now(), dirty: true })
     .where(eq(vehicles.id, id));
+  requestSync();
 }
 
 /**
  * Kayıt kalır, işaretlenir: hesaplı kullanıcıda silme diğer cihaza da eşitlenir.
- * Aracın yakıt kayıtları da aynı anda işaretlenir; ikisi birlikte olur ya da hiçbiri olmaz.
+ * Aracın yakıt, masraf ve hatırlatma kayıtları da aynı anda işaretlenir; hepsi birlikte olur ya da hiçbiri olmaz.
  */
 export async function deleteVehicle(id: string): Promise<void> {
   const now = Date.now();
@@ -36,11 +38,25 @@ export async function deleteVehicle(id: string): Promise<void> {
   // expo-sqlite sürücüsünde işlem eşzamanlıdır: geri çağırma async olursa işlem sorgular bitmeden kapanır.
   db.transaction((tx) => {
     tx.update(vehicles).set(deleted).where(eq(vehicles.id, id)).run();
-    tx.update(fuelEntries)
-      .set(deleted)
-      .where(and(eq(fuelEntries.vehicleId, id), isNull(fuelEntries.deletedAt)))
-      .run();
+    for (const table of [fuelEntries, expenses, reminders]) {
+      tx.update(table)
+        .set(deleted)
+        .where(and(eq(table.vehicleId, id), isNull(table.deletedAt)))
+        .run();
+    }
   });
+  requestSync();
+}
+
+/**
+ * Aracın kilometresi kayıttan büyükse olduğu gibi kalır, küçükse kayıttaki km'ye çıkar.
+ * Geriye çekilmez: kullanıcı aracın km'sini elle daha ileri girmiş olabilir.
+ */
+export async function raiseOdometer(vehicleId: string, km: number) {
+  await db
+    .update(vehicles)
+    .set({ odometerKm: km, updatedAt: Date.now(), dirty: true })
+    .where(and(eq(vehicles.id, vehicleId), lt(vehicles.odometerKm, km)));
 }
 
 export async function getVehicle(id: string): Promise<Vehicle | undefined> {

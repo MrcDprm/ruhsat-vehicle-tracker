@@ -1,28 +1,20 @@
-import { and, desc, eq, isNull, lt } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { randomUUID } from 'expo-crypto';
 
 import { db } from '@/db/client';
-import { fuelEntries, vehicles, type FuelEntry } from '@/db/schema';
+import { fuelEntries, type FuelEntry } from '@/db/schema';
+import { requestSync } from '@/features/reminders/notifications';
+import { raiseOdometer } from '@/features/vehicles/repository';
 
 import type { FuelValues } from './validation';
-
-/**
- * Aracın kilometresi kayıttan büyükse olduğu gibi kalır, küçükse kayıttaki km'ye çıkar.
- * Geriye çekilmez: kullanıcı aracın km'sini elle daha ileri girmiş olabilir.
- */
-async function raiseOdometer(vehicleId: string, km: number) {
-  await db
-    .update(vehicles)
-    .set({ odometerKm: km, updatedAt: Date.now(), dirty: true })
-    .where(and(eq(vehicles.id, vehicleId), lt(vehicles.odometerKm, km)));
-}
 
 export async function createFuelEntry(vehicleId: string, values: FuelValues): Promise<string> {
   const now = Date.now();
   const id = randomUUID();
   await db.insert(fuelEntries).values({ ...values, id, vehicleId, createdAt: now, updatedAt: now, dirty: true });
   await raiseOdometer(vehicleId, values.odometerKm);
+  requestSync();
   return id;
 }
 
@@ -32,12 +24,14 @@ export async function updateFuelEntry(id: string, vehicleId: string, values: Fue
     .set({ ...values, updatedAt: Date.now(), dirty: true })
     .where(eq(fuelEntries.id, id));
   await raiseOdometer(vehicleId, values.odometerKm);
+  requestSync();
 }
 
 /** Kayıt kalır, işaretlenir: hesaplı kullanıcıda silme diğer cihaza da eşitlenir. */
 export async function deleteFuelEntry(id: string): Promise<void> {
   const now = Date.now();
   await db.update(fuelEntries).set({ deletedAt: now, updatedAt: now, dirty: true }).where(eq(fuelEntries.id, id));
+  requestSync();
 }
 
 export async function getFuelEntry(id: string): Promise<FuelEntry | undefined> {

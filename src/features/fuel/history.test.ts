@@ -1,4 +1,4 @@
-import { groupByMonth, monthTotal } from './history';
+import { groupByMonth, mergeHistory, monthTotal } from './history';
 
 const at = (y: number, m: number, d: number, totalPrice = 100) => ({
   date: new Date(y, m, d, 12).getTime(),
@@ -25,6 +25,32 @@ describe('groupByMonth', () => {
     const firstMinute = { date: new Date(2026, 10, 1, 0, 1).getTime(), totalPrice: 1 };
     expect(groupByMonth([firstMinute, lastMinute]).map((g) => g.key)).toEqual(['2026-11', '2026-10']);
   });
+});
+
+describe('mergeHistory', () => {
+  it('yakıt ve masrafı tarihe, aynı günde giriş sırasına göre (yeni başta) birleştirir', () => {
+    const fuel = [
+      { id: 'f1', date: at(2026, 10, 5).date, createdAt: 1, totalPrice: 1500 },
+      { id: 'f2', date: at(2026, 10, 1).date, createdAt: 2, totalPrice: 800 },
+    ];
+    const expenses = [
+      { id: 'x1', date: at(2026, 10, 5).date, createdAt: 3, amount: 250 },
+      { id: 'x2', date: at(2026, 9, 20).date, createdAt: 4, amount: 3000 },
+    ];
+    const merged = mergeHistory(fuel, expenses);
+    expect(merged.map((i) => [i.type, i.id, i.totalPrice])).toEqual([
+      ['expense', 'x1', 250],
+      ['fuel', 'f1', 1500],
+      ['fuel', 'f2', 800],
+      ['expense', 'x2', 3000],
+    ]);
+    expect(groupByMonth(merged).map((g) => [g.key, g.total])).toEqual([
+      ['2026-11', 2550],
+      ['2026-10', 3000],
+    ]);
+  });
+
+  it('boş listeler', () => expect(mergeHistory([], [])).toEqual([]));
 });
 
 describe('monthTotal', () => {

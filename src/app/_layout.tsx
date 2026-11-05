@@ -12,6 +12,7 @@ import { View } from 'react-native';
 import migrations from '../../drizzle/migrations';
 import { Text } from '@/components/Text';
 import { db } from '@/db/client';
+import { NotificationBridge } from '@/features/reminders/NotificationBridge';
 import { I18nProvider } from '@/i18n';
 import { fonts } from '@/theme/colors';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
@@ -30,6 +31,7 @@ function AppStack() {
   return (
     <>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <NotificationBridge />
       <Stack screenOptions={header}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
@@ -43,6 +45,8 @@ function AppStack() {
         />
         <Stack.Screen name="vehicles/edit" options={{ presentation: 'modal' }} />
         <Stack.Screen name="fuel/edit" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="expenses/edit" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="reminders/setup" options={{ presentation: 'modal' }} />
       </Stack>
     </>
   );

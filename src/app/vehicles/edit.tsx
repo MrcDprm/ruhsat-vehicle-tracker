@@ -6,6 +6,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
+import { HeaderButton } from '@/components/HeaderButton';
 import { Section } from '@/components/Section';
 import { Suggestions } from '@/components/Suggestions';
 import { Text } from '@/components/Text';
@@ -31,22 +32,6 @@ const EMPTY: VehicleInput = {
   odometerKm: '',
 };
 
-function HeaderButton({ title, onPress, bold }: { title: string; onPress: () => void; bold?: boolean }) {
-  const { colors } = useTheme();
-  return (
-    <Pressable accessibilityRole="button" hitSlop={10} onPress={onPress} style={{ paddingHorizontal: 4 }}>
-      <Text
-        style={{
-          fontFamily: bold ? fonts.bodySemi : fonts.body,
-          fontSize: 17,
-          color: bold ? colors.amber : colors.ink,
-        }}>
-        {title}
-      </Text>
-    </Pressable>
-  );
-}
-
 export default function VehicleEditScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { t, number } = useI18n();
@@ -59,10 +44,12 @@ export default function VehicleEditScreen() {
   const [loaded, setLoaded] = useState(!id);
   const [focused, setFocused] = useState<keyof VehicleInput | null>(null);
   // Kayıt/silme bitince kapanış bir sonraki çizimde yapılır; o çizimde çıkış engeli artık kalkmış olur.
-  const [done, setDone] = useState<'back' | 'dismissAll' | null>(null);
+  // Yeni araçtan sonra hatırlatma kurulumu açılır (muayene, sigorta, bakım bir kez sorulur).
+  const [done, setDone] = useState<'back' | 'dismissAll' | { setup: string } | null>(null);
   useEffect(() => {
     if (done === 'back') router.back();
     else if (done === 'dismissAll') router.dismissAll();
+    else if (done) router.replace({ pathname: '/reminders/setup', params: { vehicleId: done.setup, first: '1' } });
   }, [done]);
 
   useEffect(() => {
@@ -125,7 +112,12 @@ export default function VehicleEditScreen() {
     setSaving(true);
     try {
       if (id) await updateVehicle(id, result.value);
-      else await createVehicle(result.value);
+      else {
+        const newId = await createVehicle(result.value);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        setDone({ setup: newId });
+        return;
+      }
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setDone('back');
     } catch {

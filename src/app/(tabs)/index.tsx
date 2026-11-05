@@ -4,13 +4,14 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
-import { Fab } from '@/components/Fab';
+import { AddEntryFab } from '@/components/Fab';
 import { Guilloche } from '@/components/Guilloche';
 import { Odometer } from '@/components/Odometer';
 import { Plate } from '@/components/Plate';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { FuelCard } from '@/features/fuel/FuelCard';
+import { UpcomingCard } from '@/features/reminders/UpcomingCard';
 import { useActiveVehicle } from '@/features/vehicles/repository';
 import { useI18n } from '@/i18n';
 
@@ -35,7 +36,7 @@ export default function SummaryScreen() {
   const subtitle = [t('summary.vehicleCount', { count: vehicles.length }), details].filter(Boolean).join(' · ');
 
   return (
-    <Screen footer={<Fab icon="fuelpump.fill" label={t('fuel.newTitle')} onPress={() => router.push('/fuel/edit')} />}>
+    <Screen footer={<AddEntryFab />}>
       <Pressable
         accessibilityRole="button"
         accessibilityHint={t('vehicles.title')}
@@ -75,22 +76,19 @@ export default function SummaryScreen() {
         </Pressable>
       </Animated.View>
 
+      {/* Plan sırası: önce sıradaki hatırlatmalar, sonra tüketim ve bu ayki masraf. */}
       <Animated.View entering={FadeInDown.delay(60).duration(360)} style={{ gap: 12 }}>
         <Text variant="section" tone="muted" style={{ marginTop: 8 }}>
-          {t('summary.fuel')}
+          {t('summary.upcoming')}
         </Text>
-        <FuelCard vehicle={active} />
+        <UpcomingCard vehicle={active} />
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(120).duration(360)} style={{ gap: 12 }}>
         <Text variant="section" tone="muted" style={{ marginTop: 8 }}>
-          {t('summary.upcoming')}
+          {t('summary.fuel')}
         </Text>
-        <Card style={{ padding: 16 }}>
-          <Text variant="caption" tone="muted">
-            {t('summary.upcomingEmpty')}
-          </Text>
-        </Card>
+        <FuelCard vehicle={active} />
       </Animated.View>
     </Screen>
   );
