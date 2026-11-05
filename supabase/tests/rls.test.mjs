@@ -1,10 +1,12 @@
-// RLS testleri: supabase/migrations/0001_sync_tables.sql gerçek bir Postgres'te (PGlite, WebAssembly) çalıştırılır;
+// RLS testleri: supabase/migrations/0001 ve 0003 gerçek bir Postgres'te (PGlite, WebAssembly) çalıştırılır;
 // Supabase'in auth şeması, rolleri ve varsayılan yetkileri taklit edilir. Böylece veriyi koruyan şey Supabase'teki gibi
 // gerçekten RLS olur. İki kullanıcı (A, B) birbirinin kaydını okuyamamalı ve yazamamalı.
 //
 //   npm run test:rls                 → hepsi geçmeli
 //   RLS_BREAK=1 npm run test:rls     → okuma kuralı bilerek "herkes görür" yapılır; testler DÜŞMELİ
-//                                      (testin gerçekten hata yakaladığının kanıtı)
+//   RLS_BREAK=quota npm run test:rls → satır kotası bilerek kaldırılır; kota testi DÜŞMELİ
+//                                      (testlerin gerçekten hata yakaladığının kanıtı)
+// 0002 (pg_cron) Supabase'e özgü eklenti istediği için burada çalıştırılmaz.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -14,7 +16,9 @@ import { fileURLToPath } from 'node:url';
 import { PGlite } from '@electric-sql/pglite';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const migration = readFileSync(join(here, '..', 'migrations', '0001_sync_tables.sql'), 'utf8');
+const migrations = ['0001_sync_tables.sql', '0003_quotas_and_values.sql'].map((f) =>
+  readFileSync(join(here, '..', 'migrations', f), 'utf8'),
+);
 
 const A = '00000000-0000-4000-8000-00000000000a';
 const B = '00000000-0000-4000-8000-00000000000b';
@@ -72,9 +76,12 @@ const upsertVehicle = (user, v) =>
 before(async () => {
   db = new PGlite();
   await db.exec(SUPABASE_STUB);
-  await db.exec(migration);
+  for (const m of migrations) await db.exec(m);
   if (process.env.RLS_BREAK === '1') {
     await db.exec(`alter policy "own rows: select" on public.vehicles using (true);`);
+  }
+  if (process.env.RLS_BREAK === 'quota') {
+    await db.exec(`drop trigger vehicles_quota on public.vehicles;`);
   }
   await db.exec(`insert into auth.users (id, email) values ('${A}', 'a@example.com'), ('${B}', 'b@example.com');`);
 });
@@ -166,6 +173,47 @@ describe('sunucu kuralları', () => {
   });
 });
 
+describe('kota ve değerler', () => {
+  it('araç kotası (100) dolunca yeni araç eklenemez, mevcut araç düzenlenebilir', async () => {
+    // B'nin 1 aracı var; 99 tane daha (kota tam dolar).
+    await db.exec(`
+      insert into public.vehicles (id, user_id, created_at, updated_at, name, fuel_types, odometer_km)
+      select gen_random_uuid(), '${B}', 1, 1, 'Araç ' || g, '["petrol"]', 0 from generate_series(1, 99) g;`);
+    await assert.rejects(upsertVehicle(B, vehicle('20000000-0000-4000-8000-000000000101', B)), /row quota exceeded/);
+    await upsertVehicle(B, vehicle(VB, B, { updated_at: 7000, name: 'Doblo düzenlendi' }));
+    const row = await as(B, 'select name from public.vehicles where id = $1', [VB]);
+    assert.equal(row.rows[0].name, 'Doblo düzenlendi');
+  });
+
+  it('kota kullanıcı başınadır: başkasının dolu kotası seni etkilemez', async () => {
+    await upsertVehicle(A, vehicle('20000000-0000-4000-8000-000000000102', A, { name: 'İkinci' }));
+    const rows = await as(A, 'select count(*)::int as n from public.vehicles');
+    assert.equal(rows.rows[0].n, 2);
+  });
+
+  it('dizi sütunlarında yalnız bilinen değerler', async () => {
+    await assert.rejects(
+      upsertVehicle(A, vehicle('20000000-0000-4000-8000-000000000103', A, { fuel_types: '["nitro"]' })),
+      /check constraint/,
+    );
+    await assert.rejects(
+      as(
+        A,
+        `insert into public.expenses (id, user_id, created_at, updated_at, vehicle_id, date, category, subtypes, amount)
+         values ('40000000-0000-4000-8000-000000000001', $1, 1, 1, $2, 1, 'service', '["oil","rocket"]', 100)`,
+        [A, VA],
+      ),
+      /check constraint/,
+    );
+    await as(
+      A,
+      `insert into public.expenses (id, user_id, created_at, updated_at, vehicle_id, date, category, subtypes, amount)
+       values ('40000000-0000-4000-8000-000000000002', $1, 1, 1, $2, 1, 'service', '["oil","filter"]', 100)`,
+      [A, VA],
+    );
+  });
+});
+
 describe('hesap silme', () => {
   it('giriş yapmamış çağıramaz', async () => {
     await assert.rejects(as(null, 'select public.delete_account()'), /permission denied/);
@@ -178,7 +226,14 @@ describe('hesap silme', () => {
       users.rows.map((r) => r.id),
       [B],
     );
-    const left = await db.query('select id, user_id from public.vehicles');
-    assert.deepEqual(left.rows, [{ id: VB, user_id: B }]);
+    // A'nın hiçbir kaydı kalmadı (araçlar ve onlara bağlı masraflar); B'nin bütün araçları duruyor.
+    const ofA = await db.query(
+      `select (select count(*) from public.vehicles where user_id = $1)::int as v,
+              (select count(*) from public.expenses where user_id = $1)::int as e`,
+      [A],
+    );
+    assert.deepEqual(ofA.rows[0], { v: 0, e: 0 });
+    const ofB = await db.query('select count(*)::int as n from public.vehicles where user_id = $1', [B]);
+    assert.equal(ofB.rows[0].n, 100);
   });
 });

@@ -335,6 +335,11 @@ export const tr = {
   'settings.wipe.textAccount':
     'Araçların, kayıtların ve hatırlatmaların bu telefondan ve hesabından silinir. Önce dışa aktarmak isteyebilirsin.',
 
+  'migration.title': 'Kayıtların güncellenemedi',
+  'migration.text':
+    'Uygulamanın yeni sürümü telefondaki kayıtları güncelleyemedi. Kayıtlarına dokunulmadı. Lütfen bize bildir; düzeltmeyi hemen yayımlayalım.',
+  'migration.report': 'E-postayla bildir',
+  'migration.subject': 'veritabanı güncellenemedi',
   'widget.next': 'Sıradaki',
   'widget.consumption': 'Son tüketim',
   'widget.days': '%d gün',
