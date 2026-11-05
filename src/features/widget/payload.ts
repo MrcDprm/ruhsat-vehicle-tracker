@@ -36,6 +36,9 @@ export type WidgetPayload = {
     /** "%d gün" gibi; %d widget'ta gün sayısıyla değişir. */
     days: string;
     overdue: string;
+    /** Gün sayısı 1 olunca ("%d day"); Türkçede days ve overdue ile aynı. */
+    dayOne: string;
+    overdueOne: string;
     today: string;
     noReminder: string;
     noVehicle: string;
@@ -95,6 +98,8 @@ export function buildWidgetPayload(
     month: f.upper(f.t('summary.thisMonth')),
     days: f.t('widget.days'),
     overdue: f.t('widget.overdue'),
+    dayOne: f.t('widget.days', { count: 1 }),
+    overdueOne: f.t('widget.overdue', { count: 1 }),
     today: f.t('reminder.today'),
     noReminder: f.t('widget.noReminder'),
     noVehicle: f.t('widget.noVehicle'),
