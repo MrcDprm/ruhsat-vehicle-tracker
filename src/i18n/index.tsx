@@ -51,6 +51,11 @@ export function formatMoney(formatted: string, format: CurrencyFormat): string {
   return `${formatted} ${format === 'code' ? 'TL' : '₺'}`;
 }
 
+/** React dışındaki kod için (widget metni) geçerli para birimi biçimi. */
+export function currentCurrencyFormat(): CurrencyFormat {
+  return readCurrency();
+}
+
 function readCurrency(): CurrencyFormat {
   const v = Storage.getItemSync(CURRENCY_KEY);
   return CURRENCY_FORMATS.includes(v as CurrencyFormat) ? (v as CurrencyFormat) : 'symbolAfter';
