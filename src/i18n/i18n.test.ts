@@ -1,5 +1,5 @@
 import { en } from './en';
-import { formatMoney, translate } from './index';
+import { formatMoney, translate, upperCase } from './index';
 import { tr } from './tr';
 
 jest.mock('expo-localization', () => ({ getLocales: () => [{ languageCode: 'tr' }] }));
@@ -29,5 +29,23 @@ describe('formatMoney', () => {
     expect(formatMoney('1.682,41', 'symbolBefore')).toBe('₺1.682,41');
     expect(formatMoney('1.682,41', 'code')).toBe('1.682,41 TL');
     expect(formatMoney('-250', 'symbolBefore')).toBe('-₺250');
+  });
+});
+
+describe('upperCase', () => {
+  it('Türkçede i → İ, ı → I', () => {
+    expect(upperCase('Verilerim', 'tr')).toBe('VERİLERİM');
+    expect(upperCase('Son tüketim', 'tr')).toBe('SON TÜKETİM');
+    expect(upperCase('Sıradaki ışık', 'tr')).toBe('SIRADAKİ IŞIK');
+    expect(upperCase('çöğüş', 'tr')).toBe('ÇÖĞÜŞ');
+  });
+
+  it('İngilizcede i → I', () => {
+    expect(upperCase('This month', 'en')).toBe('THIS MONTH');
+  });
+
+  it('boş metin ve zaten büyük harf', () => {
+    expect(upperCase('', 'tr')).toBe('');
+    expect(upperCase('MTV İLE', 'tr')).toBe('MTV İLE');
   });
 });
