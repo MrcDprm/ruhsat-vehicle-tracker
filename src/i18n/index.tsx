@@ -31,13 +31,30 @@ type I18nValue = {
   t: (key: MessageKey | (string & {}), params?: Record<string, string | number>) => string;
   /** Yerel biçimde sayı: tr "87.421" / "6,4", en "87,421" / "6.4". */
   number: (n: number, fractionDigits?: number) => string;
-  /** Tutar: tr "1.682,41 ₺", en "1,682.41 ₺". Para birimi şimdilik TL. */
+  /** Tutar, ayarlardaki biçimle: "1.682,41 ₺", "₺1.682,41" ya da "1.682,41 TL". Para birimi TL. */
   money: (n: number, fractionDigits?: number) => string;
+  currencyFormat: CurrencyFormat;
+  setCurrencyFormat: (f: CurrencyFormat) => void;
   /** Yerel biçimde tarih, ör. { day: 'numeric', month: 'short' } → "5 Kas" / "5 Nov". */
   date: (ms: number, options: Intl.DateTimeFormatOptions) => string;
 };
 
 const I18nContext = createContext<I18nValue | null>(null);
+
+/** Para birimi biçimi (Ayarlar): sembol sonda, sembol başta ya da TL kısaltması. */
+export const CURRENCY_FORMATS = ['symbolAfter', 'symbolBefore', 'code'] as const;
+export type CurrencyFormat = (typeof CURRENCY_FORMATS)[number];
+const CURRENCY_KEY = 'pref.currency';
+
+export function formatMoney(formatted: string, format: CurrencyFormat): string {
+  if (format === 'symbolBefore') return formatted.startsWith('-') ? `-₺${formatted.slice(1)}` : `₺${formatted}`;
+  return `${formatted} ${format === 'code' ? 'TL' : '₺'}`;
+}
+
+function readCurrency(): CurrencyFormat {
+  const v = Storage.getItemSync(CURRENCY_KEY);
+  return CURRENCY_FORMATS.includes(v as CurrencyFormat) ? (v as CurrencyFormat) : 'symbolAfter';
+}
 
 function readPreference(): LocalePreference {
   const v = Storage.getItemSync(KEY);
@@ -52,6 +69,7 @@ export function currentLocale(): Locale {
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [preference, setPref] = useState<LocalePreference>(readPreference);
+  const [currencyFormat, setCurrency] = useState<CurrencyFormat>(readCurrency);
   const locale = preference === 'system' ? systemLocale() : preference;
 
   const value = useMemo<I18nValue>(() => {
@@ -70,10 +88,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       },
       t: (key, params) => translate(locale, key, params),
       number,
-      money: (n, fractionDigits = 2) => `${number(n, fractionDigits)} ₺`,
+      money: (n, fractionDigits = 2) => formatMoney(number(n, fractionDigits), currencyFormat),
+      currencyFormat,
+      setCurrencyFormat: (f) => {
+        Storage.setItemSync(CURRENCY_KEY, f);
+        setCurrency(f);
+      },
       date: (ms, options) => new Intl.DateTimeFormat(tag, options).format(new Date(ms)),
     };
-  }, [locale, preference]);
+  }, [locale, preference, currencyFormat]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
