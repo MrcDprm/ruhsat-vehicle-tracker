@@ -20,6 +20,15 @@ export function translate(locale: Locale, key: string, params?: Record<string, s
     : template;
 }
 
+/**
+ * Dile göre büyük harf: Türkçede i → İ, ı → I ("Verilerim" → "VERİLERİM").
+ * iOS'taki textTransform: 'uppercase' ve JS toUpperCase() dil kuralı uygulamaz, "VERILERIM" yazar.
+ * toLocaleUpperCase('tr-TR') da motorun Intl desteğine bağlı olduğu için harfler elle çevrilir.
+ */
+export function upperCase(text: string, locale: Locale): string {
+  return locale === 'tr' ? text.replace(/i/g, 'İ').replace(/ı/g, 'I').toUpperCase() : text.toUpperCase();
+}
+
 export function systemLocale(): Locale {
   return getLocales()[0]?.languageCode === 'tr' ? 'tr' : 'en';
 }
@@ -104,6 +113,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [locale, preference, currencyFormat]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+}
+
+/** Sağlayıcı dışında da çalışır (ör. göç hatası ekranı): o zaman kayıtlı tercihten okunur. */
+export function useLocale(): Locale {
+  return useContext(I18nContext)?.locale ?? currentLocale();
 }
 
 export function useI18n(): I18nValue {

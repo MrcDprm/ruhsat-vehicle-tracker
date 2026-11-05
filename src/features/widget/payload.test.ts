@@ -9,6 +9,7 @@ const f: WidgetFormatters = {
   t: (key, params) => (params ? `${key}${JSON.stringify(params)}` : key),
   number: (n, d = 0) => n.toFixed(d),
   money: (n) => `${Math.round(n)} TL`,
+  upper: (text) => `UP(${text})`,
 };
 
 const vehicle = (id: string, name: string, createdAt = 1, odometerKm = 88_000) =>
@@ -49,6 +50,16 @@ describe('buildWidgetPayload', () => {
     const p = buildWidgetPayload(empty, null, NOW, f);
     expect(p).toMatchObject({ vehicle: null, reminder: null, consumption: null, month: '0 TL' });
     expect(p.labels.noVehicle).toBe('widget.noVehicle');
+  });
+
+  it('büyük harfle gösterilen etiketler uygulamada dile göre büyütülür', () => {
+    const { labels } = buildWidgetPayload(empty, null, NOW, f);
+    expect(labels).toMatchObject({
+      next: 'UP(widget.next)',
+      consumption: 'UP(widget.consumption)',
+      month: 'UP(summary.thisMonth)',
+      today: 'reminder.today',
+    });
   });
 
   it('seçili araç silinmişse ilk araca düşer', () => {

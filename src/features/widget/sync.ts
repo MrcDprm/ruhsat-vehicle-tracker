@@ -4,7 +4,7 @@ import { isNull } from 'drizzle-orm';
 import { db } from '@/db/client';
 import { expenses, fuelEntries, reminders, vehicles } from '@/db/schema';
 import { activeVehicleId } from '@/features/vehicles/active';
-import { currentCurrencyFormat, currentLocale, formatMoney, translate } from '@/i18n';
+import { currentCurrencyFormat, currentLocale, formatMoney, translate, upperCase } from '@/i18n';
 
 import { WIDGET_APP_GROUP, WIDGET_KEY, buildWidgetPayload } from './payload';
 
@@ -32,6 +32,7 @@ export async function syncWidget(): Promise<void> {
       t: (key, params) => translate(locale, key, params),
       number,
       money: (n, digits = 2) => formatMoney(number(n, digits), currency),
+      upper: (text) => upperCase(text, locale),
     },
   );
   storage.set(WIDGET_KEY, JSON.stringify(payload));

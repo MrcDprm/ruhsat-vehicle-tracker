@@ -56,9 +56,9 @@ struct SummaryPayload: Decodable {
             consumption: Consumption(value: isTurkish ? "6,4" : "6.4", unit: "L/100 km"),
             month: isTurkish ? "2.840 ₺" : "2,840 ₺",
             labels: Labels(
-                next: isTurkish ? "Sıradaki" : "Next up",
-                consumption: isTurkish ? "Son tüketim" : "Last consumption",
-                month: isTurkish ? "Bu ay" : "This month",
+                next: isTurkish ? "SIRADAKİ" : "NEXT UP",
+                consumption: isTurkish ? "SON TÜKETİM" : "LAST CONSUMPTION",
+                month: isTurkish ? "BU AY" : "THIS MONTH",
                 days: isTurkish ? "%d gün" : "%d days",
                 overdue: isTurkish ? "%d gün geçti" : "%d days late",
                 today: isTurkish ? "Bugün" : "Today",
@@ -166,7 +166,8 @@ struct StatRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
-            Text(label.uppercased())
+            // Etiket uygulamadan dilin kuralıyla büyük harf gelir (Türkçede i → İ).
+            Text(label)
                 .font(.system(size: 10, weight: .semibold))
                 .tracking(0.8)
                 .foregroundStyle(Color("muted"))
@@ -242,7 +243,7 @@ struct MediumSummaryView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(Color("muted"))
                         .lineLimit(1)
-                    Text(payload.labels.next.uppercased())
+                    Text(payload.labels.next)
                         .font(.system(size: 10, weight: .semibold))
                         .tracking(0.8)
                         .foregroundStyle(Color("muted"))

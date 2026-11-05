@@ -28,6 +28,7 @@ export type WidgetPayload = {
   consumption: { value: string; unit: string } | null;
   /** Bu ayki toplam harcama, para birimi biçimiyle. */
   month: string;
+  /** next, consumption ve month uygulamanın dilinin kuralıyla büyük harf gelir; Swift'in uppercased()'ı Türkçe i'yi bilmez. */
   labels: {
     next: string;
     consumption: string;
@@ -53,6 +54,8 @@ export type WidgetFormatters = {
   t: (key: string, params?: Record<string, string | number>) => string;
   number: (n: number, fractionDigits?: number) => string;
   money: (n: number, fractionDigits?: number) => string;
+  /** Dile göre büyük harf (i18n upperCase). */
+  upper: (text: string) => string;
 };
 
 const ICONS: Record<string, string> = {
@@ -87,9 +90,9 @@ export function buildWidgetPayload(
   f: WidgetFormatters,
 ): WidgetPayload {
   const labels: WidgetPayload['labels'] = {
-    next: f.t('widget.next'),
-    consumption: f.t('widget.consumption'),
-    month: f.t('summary.thisMonth'),
+    next: f.upper(f.t('widget.next')),
+    consumption: f.upper(f.t('widget.consumption')),
+    month: f.upper(f.t('summary.thisMonth')),
     days: f.t('widget.days'),
     overdue: f.t('widget.overdue'),
     today: f.t('reminder.today'),
