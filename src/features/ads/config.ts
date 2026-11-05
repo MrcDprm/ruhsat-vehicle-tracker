@@ -12,7 +12,8 @@ export const nativeStoreAvailable = !isRunningInExpoGo();
 export const REMOVE_ADS_SKU = 'com.miracdeprem.ruhsat.removeads';
 
 /**
- * AdMob banner birimi. Kimlikler gizli değildir (uygulamanın içinde durur). Gerçek kimlik yayından önce yazılır;
- * null kaldıkça ve geliştirmede her zaman Google'ın test reklamı gösterilir: kendi reklamına dokunmak AdMob kuralı ihlalidir.
+ * AdMob banner birimi. Kimlikler gizli değildir (uygulamanın içinde durur). Mağaza derlemesinde bu gerçek birim,
+ * geliştirmede (__DEV__) her zaman Google'ın test reklamı gösterilir: kendi reklamına dokunmak AdMob kuralı ihlalidir.
+ * Uygulama kimliği app.json'da (react-native-google-mobile-ads eklentisi).
  */
-export const BANNER_UNIT_ID_IOS: string | null = null;
+export const BANNER_UNIT_ID_IOS: string | null = 'ca-app-pub-9920696188589452/3647195336';
