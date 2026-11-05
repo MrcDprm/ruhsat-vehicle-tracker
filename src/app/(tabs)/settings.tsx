@@ -1,11 +1,11 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import * as WebBrowser from 'expo-web-browser';
 import { useState, type ReactNode } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, View } from 'react-native';
+import { Alert, Linking, Pressable, View } from 'react-native';
 
 import { Card } from '@/components/Card';
+import { Row } from '@/components/SettingsRow';
 import { Chip } from '@/components/Chip';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
@@ -17,7 +17,9 @@ import {
   useNotificationPermission,
   useNotificationsEnabled,
 } from '@/features/reminders/notifications';
-import { wipeAllData } from '@/features/settings/wipe';
+import { deleteAllRecords } from '@/features/settings/wipe';
+import { AccountSection } from '@/features/account/AccountSection';
+import { useSession } from '@/sync/client';
 import { CURRENCY_FORMATS, formatMoney, useI18n, type LocalePreference } from '@/i18n';
 import { fonts } from '@/theme/colors';
 import { useTheme, type ThemePreference } from '@/theme/ThemeProvider';
@@ -35,54 +37,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-/** Ayar satırı: simge, ad, sağda değer ya da ok; dokununca eylem. */
-function Row({
-  icon,
-  label,
-  detail,
-  onPress,
-  danger,
-  busy,
-  first,
-}: {
-  icon: SymbolViewProps['name'];
-  label: string;
-  detail?: string;
-  onPress?: () => void;
-  danger?: boolean;
-  busy?: boolean;
-  first?: boolean;
-}) {
-  const { colors } = useTheme();
-  const tint = danger ? colors.rust : colors.ink;
-  return (
-    <Pressable
-      accessibilityRole={onPress ? 'button' : 'text'}
-      disabled={!onPress || busy}
-      onPress={onPress}
-      style={({ pressed }) => ({
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-        borderTopWidth: first ? 0 : 1,
-        borderTopColor: colors.line,
-        opacity: pressed ? 0.6 : 1,
-      })}>
-      <SymbolView name={icon} size={18} tintColor={danger ? colors.rust : colors.muted} />
-      <Text style={{ flex: 1, fontFamily: fonts.body, fontSize: 16, color: tint }}>{label}</Text>
-      {busy ? <ActivityIndicator color={colors.muted} /> : null}
-      {detail ? (
-        <Text variant="caption" tone="muted">
-          {detail}
-        </Text>
-      ) : null}
-      {onPress && !busy ? <SymbolView name="chevron.right" size={13} tintColor={colors.muted} /> : null}
-    </Pressable>
-  );
-}
-
 export default function SettingsScreen() {
   const {
     t,
@@ -97,6 +51,7 @@ export default function SettingsScreen() {
   const notificationsOn = useNotificationsEnabled();
   const permission = useNotificationPermission();
   const [exporting, setExporting] = useState<ExportKind | null>(null);
+  const signedIn = useSession().status === 'signedIn';
 
   const locales: { value: LocalePreference; label: string }[] = [
     { value: 'system', label: t('settings.language.system') },
@@ -118,7 +73,7 @@ export default function SettingsScreen() {
 
   // İki adımlı onay: geri dönüşü olmayan tek işlem.
   const confirmWipe = () =>
-    Alert.alert(t('settings.wipe.title'), t('settings.wipe.text'), [
+    Alert.alert(t('settings.wipe.title'), t(signedIn ? 'settings.wipe.textAccount' : 'settings.wipe.text'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('settings.wipe.continue'),
@@ -129,9 +84,9 @@ export default function SettingsScreen() {
             {
               text: t('settings.wipe.confirm'),
               style: 'destructive',
-              onPress: () => {
+              onPress: async () => {
                 try {
-                  wipeAllData();
+                  await deleteAllRecords();
                   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                   router.navigate('/');
                 } catch {
@@ -146,6 +101,10 @@ export default function SettingsScreen() {
   return (
     <Screen>
       <Text variant="title">{t('tab.settings')}</Text>
+
+      <Section title={t('account.title')}>
+        <AccountSection />
+      </Section>
 
       <Section title={t('settings.appearance')}>
         <Card style={{ padding: 16 }}>
