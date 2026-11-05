@@ -1,22 +1,12 @@
-import { and, desc, eq, isNull, lt } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { randomUUID } from 'expo-crypto';
 
 import { db } from '@/db/client';
-import { fuelEntries, vehicles, type FuelEntry } from '@/db/schema';
+import { fuelEntries, type FuelEntry } from '@/db/schema';
+import { raiseOdometer } from '@/features/vehicles/repository';
 
 import type { FuelValues } from './validation';
-
-/**
- * Aracın kilometresi kayıttan büyükse olduğu gibi kalır, küçükse kayıttaki km'ye çıkar.
- * Geriye çekilmez: kullanıcı aracın km'sini elle daha ileri girmiş olabilir.
- */
-async function raiseOdometer(vehicleId: string, km: number) {
-  await db
-    .update(vehicles)
-    .set({ odometerKm: km, updatedAt: Date.now(), dirty: true })
-    .where(and(eq(vehicles.id, vehicleId), lt(vehicles.odometerKm, km)));
-}
 
 export async function createFuelEntry(vehicleId: string, values: FuelValues): Promise<string> {
   const now = Date.now();
