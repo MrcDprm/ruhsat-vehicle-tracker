@@ -133,22 +133,46 @@ No features are locked. The app shows a single ad, only on the Stats and History
 ## App Review bilgileri
 
 - **Sign-in required:** Hayır. Uygulamanın tamamı hesapsız kullanılabilir; hesap yalnızca yedekleme ve eşitleme içindir.
-- **Notes (İngilizce):**
+- **Notes (İngilizce).** Koyun & Kurt'ün ilk incelemesi "2.1 Information Needed" ile döndü: Apple fiziksel iPhone'da,
+  açılıştan başlayan ekran kaydı ve aşağıdaki başlıkları istedi. Bu yüzden ilk gönderimde hepsi var.
 
 ```
-Ruhsat works fully without an account: on the welcome screen tap "Continue without an account" ("Hesapsız devam et").
+WHAT THE APP IS
+Ruhsat is a car log for drivers in Turkey: fuel fill-ups and consumption, service and other expenses, and reminders for the periodic vehicle inspection, compulsory traffic insurance, comprehensive insurance and the motor vehicle tax (MTV). Audience: individual car owners. The app is in Turkish and English.
 
-Signing in is optional and only used for backup and sync between devices. It uses a 6-digit code sent by email (no password), so you can sign in with any email address you can read. A screen recording of the sign-in flow is attached.
+HOW TO REVIEW
+1. On the welcome screen tap "Continue without an account". The whole app works without an account.
+2. Tap "Add a car", enter a name and the odometer, save. The reminder setup opens; set the dates and save.
+3. Use the + button to add a fuel entry or an expense. Summary, History and Stats update.
+4. Optional account: Settings > Account > Sign in with email. A 6-digit code is sent to the email address (no password), so any address you can read works. Signing in only backs up and syncs entries between devices.
+A screen recording on a physical iPhone, starting from app launch, is attached.
 
-Account deletion: Settings > Account > Delete account.
-In-app purchase "Remove Ads" (com.miracdeprem.ruhsat.removeads): Settings > Ads > Remove ads. "Restore purchases" is on the same screen. The banner ad appears only on the Stats and History tabs.
+ACCOUNT DELETION
+Settings > Account > Delete account. It removes the account and all its entries from our server.
 
-Ads are non-personalized; the app does not request tracking permission.
+IN-APP PURCHASE
+"Remove Ads" (com.miracdeprem.ruhsat.removeads), non-consumable: Settings > Ads > Remove ads. "Restore purchases" is on the same screen. No feature is locked.
+
+ADS
+One Google AdMob banner, only on the Stats and History tabs. Ads are non-personalized; the app does not track users and does not show the App Tracking Transparency prompt. Users in the EEA and UK see Google's consent form.
+
+EXTERNAL SERVICES
+Supabase (database and authentication for the optional account; every row is protected by row level security), Resend (sends the sign-in code email), Google AdMob (ads), Apple StoreKit (the purchase). Entries are stored on the device; nothing is sent to our server unless the user signs in.
+
+REGIONAL DIFFERENCES
+Features are the same in every region. Reminder rules (inspection intervals, MTV payment months January and July) follow Turkish regulations and amounts are in Turkish lira.
+
+REGULATED OR THIRD-PARTY CONTENT
+None. The app does not provide legal, financial or insurance services; it only stores dates and amounts the user enters.
 ```
 
-- **Ek:** giriş akışının kısa ekran kaydı (e-posta → kod → kayıtlar eşitlendi).
+- **Ek:** fiziksel iPhone'da, açılıştan başlayan ekran kaydı (İngilizce arayüz): hesapsız başla → araç ekle →
+  hatırlatmalar → yakıt ve masraf → Geçmiş ve İstatistik → e-postayla giriş ve eşitleme → Reklamlar → hesabı sil.
 - Sürüm sayfasında **In-App Purchases** bölümünden "Remove Ads" bu sürüme eklenir (ilk IAP, uygulamanın ilk sürümüyle birlikte gönderilmek zorunda).
 
 ## Ekran görüntüleri
 
-6.9" iPhone için 1206×2622 (Apple küçük boyutları bundan üretir). TR ve EN ayrı set, 5 ekran: Ana ekran (yakıt kartı + sıradaki hatırlatma), yakıt ekleme, istatistik, hatırlatmalar, widget. Production derlemesinden, gerçek görünümlü örnek verilerle alınır.
+6.5" iPhone yuvası için 1242×2688: telefondan alınan 828×1792 görüntü üstte başlıkla bu boyuta yerleştirilir
+(828×1792'yi App Store Connect hiçbir yuvada kabul etmiyor). TR ve EN ayrı set, 6 ekran: Özet, Geçmiş, İstatistik,
+yakıt ekleme, hatırlatma ayarları, widget. Açık tema, örnek verilerle: geliştirme derlemesinde Ayarlar > Geliştirme >
+"Örnek verilerle doldur" (src/features/demo; mağaza derlemesine girmez). Widget görüntüsü TestFlight sürümünden.
