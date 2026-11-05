@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 import { Card } from '@/components/Card';
 import { Text } from '@/components/Text';
 import { ENTRY_FUEL_TYPES, type Vehicle } from '@/db/schema';
+import { useExpenses } from '@/features/expenses/repository';
 import { useI18n } from '@/i18n';
 import { fonts } from '@/theme/colors';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -11,11 +12,14 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { monthTotal } from './history';
 import { useFuelStats } from './useFuelStats';
 
-/** Özet ekranındaki yakıt kartı: son tüketim ve ortalama (yakıt türü başına), bu ayki harcama, km başına maliyet. */
+/** Özet ekranındaki yakıt kartı: son tüketim ve ortalama (yakıt türü başına), bu ayki toplam harcama, km başına yakıt maliyeti. */
 export function FuelCard({ vehicle }: { vehicle: Vehicle }) {
   const { t, number, money } = useI18n();
   const { colors } = useTheme();
   const { entries, stats } = useFuelStats(vehicle.id);
+  const expenses = useExpenses(vehicle.id);
+  // Bu ay: yakıt + masraf (bakım, otopark…) toplamı.
+  const spent = monthTotal([...entries, ...expenses.map((e) => ({ date: e.date, totalPrice: e.amount }))]);
   const fuels = ENTRY_FUEL_TYPES.filter((f) => stats.byFuel[f]?.last != null);
 
   return (
@@ -56,9 +60,7 @@ export function FuelCard({ vehicle }: { vehicle: Vehicle }) {
             <Text variant="label" tone="muted">
               {t('summary.thisMonth')}
             </Text>
-            <Text style={{ fontFamily: fonts.bodySemi, fontSize: 17, color: colors.ink }}>
-              {money(monthTotal(entries), 0)}
-            </Text>
+            <Text style={{ fontFamily: fonts.bodySemi, fontSize: 17, color: colors.ink }}>{money(spent, 0)}</Text>
           </View>
           <View style={{ flex: 1, gap: 2 }}>
             <Text variant="label" tone="muted">
