@@ -4,8 +4,8 @@ import { randomUUID } from 'expo-crypto';
 
 import { db } from '@/db/client';
 import { reminders, type Expense, type Reminder } from '@/db/schema';
+import { dataChanged } from '@/sync/changes';
 
-import { requestSync } from './notifications';
 import { EXPENSE_REMINDER, applyExpense } from './rules';
 import type { ReminderDraft } from './setup';
 
@@ -32,7 +32,7 @@ export async function advanceReminders(
         .where(eq(reminders.id, r.id));
     }
   }
-  requestSync();
+  dataChanged();
 }
 
 export async function getReminders(vehicleId: string): Promise<Reminder[]> {
@@ -71,7 +71,7 @@ export function saveReminders(vehicleId: string, drafts: readonly ReminderDraft[
       }
     }
   });
-  requestSync();
+  dataChanged();
 }
 
 /** Aracın silinmemiş hatırlatmaları (açık ve kapalı). */

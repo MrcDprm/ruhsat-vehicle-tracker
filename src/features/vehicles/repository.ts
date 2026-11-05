@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { db } from '@/db/client';
 import { expenses, fuelEntries, reminders, vehicles, type Vehicle } from '@/db/schema';
-import { requestSync } from '@/features/reminders/notifications';
+import { dataChanged } from '@/sync/changes';
 
 import type { VehicleValues } from './validation';
 
@@ -17,6 +17,7 @@ export async function createVehicle(values: VehicleValues): Promise<string> {
   const id = randomUUID();
   await db.insert(vehicles).values({ ...values, id, createdAt: now, updatedAt: now, dirty: true });
   setActiveVehicleId(id);
+  dataChanged();
   return id;
 }
 
@@ -25,7 +26,7 @@ export async function updateVehicle(id: string, values: VehicleValues): Promise<
     .update(vehicles)
     .set({ ...values, updatedAt: Date.now(), dirty: true })
     .where(eq(vehicles.id, id));
-  requestSync();
+  dataChanged();
 }
 
 /**
@@ -45,7 +46,7 @@ export async function deleteVehicle(id: string): Promise<void> {
         .run();
     }
   });
-  requestSync();
+  dataChanged();
 }
 
 /**
