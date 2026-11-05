@@ -145,6 +145,10 @@ describe('estimateDateForKm', () => {
     expect(day(estimateDateForKm(87_000, 88_000, null, NOW)!)).toBe('2026-11-05');
     expect(estimateDateForKm(90_000, 88_000, null, NOW)).toBeNull();
   });
+
+  it('son okumanın gününden sayar: 20 gün önceki okumadan sonra 1.000 km', () => {
+    expect(day(estimateDateForKm(89_000, 88_000, 40, NOW, NOW - 20 * 86_400_000)!)).toBe('2026-11-10');
+  });
 });
 
 describe('dueInfo', () => {

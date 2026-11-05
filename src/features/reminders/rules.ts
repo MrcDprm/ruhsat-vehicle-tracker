@@ -105,17 +105,21 @@ export function kmPerDay(points: readonly { date: number; odometerKm: number }[]
   return km / days;
 }
 
-/** Hedef km'ye hangi gün varılacağı; hız bilinmiyorsa null, hedef geçildiyse bugün. */
+/**
+ * Hedef km'ye hangi gün varılacağı; hız bilinmiyorsa null, hedef geçildiyse bugün.
+ * Hesap son km okumasının gününden başlar: okuma iki ay önceyse araç o arada da yol yapmıştır.
+ */
 export function estimateDateForKm(
   targetKm: number,
   currentKm: number,
   perDay: number | null,
   now: number,
+  readingDate: number = now,
 ): number | null {
   const remaining = targetKm - currentKm;
   if (remaining <= 0) return startOfDay(now);
   if (!perDay || perDay <= 0) return null;
-  return startOfDay(now) + Math.ceil(remaining / perDay) * DAY;
+  return startOfDay(Math.min(readingDate, now)) + Math.ceil(remaining / perDay) * DAY;
 }
 
 // ── Durum ───────────────────────────────────────────────────────────────
@@ -140,9 +144,15 @@ export type DueInfo = {
   periodStart?: number;
 };
 
-export type DueContext = { now: number; odometerKm: number; kmPerDay: number | null };
+export type DueContext = {
+  now: number;
+  odometerKm: number;
+  kmPerDay: number | null;
+  /** Aracın km'sinin okunduğu son gün (son yakıt/masraf kaydı); yoksa bugün. */
+  readingDate?: number;
+};
 
-export function dueInfo(r: ReminderFields, { now, odometerKm, kmPerDay: perDay }: DueContext): DueInfo {
+export function dueInfo(r: ReminderFields, { now, odometerKm, kmPerDay: perDay, readingDate }: DueContext): DueInfo {
   let date: number | null = r.dueDate;
   let km: number | null = r.dueKm;
   let periodStartMs: number | undefined;
@@ -155,7 +165,7 @@ export function dueInfo(r: ReminderFields, { now, odometerKm, kmPerDay: perDay }
     ({ dueDate: date, dueKm: km } = serviceDue(r));
   }
 
-  const kmDate = km !== null ? estimateDateForKm(km, odometerKm, perDay, now) : null;
+  const kmDate = km !== null ? estimateDateForKm(km, odometerKm, perDay, now, readingDate) : null;
   let effective = date;
   let basis: DueInfo['basis'] = date !== null ? 'date' : null;
   if (kmDate !== null && (effective === null || kmDate < effective)) {
