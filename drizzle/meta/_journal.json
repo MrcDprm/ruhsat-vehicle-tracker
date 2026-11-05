@@ -8,6 +8,13 @@
       "when": 1793819821317,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793875510250,
+      "tag": "0001_fuel_entries",
+      "breakpoints": true
     }
   ]
 }
