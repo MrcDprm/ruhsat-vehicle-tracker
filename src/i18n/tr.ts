@@ -335,6 +335,14 @@ export const tr = {
   'settings.wipe.textAccount':
     'Araçların, kayıtların ve hatırlatmaların bu telefondan ve hesabından silinir. Önce dışa aktarmak isteyebilirsin.',
 
+  'widget.next': 'Sıradaki',
+  'widget.consumption': 'Son tüketim',
+  'widget.days': '%d gün',
+  'widget.overdue': '%d gün geçti',
+  'widget.noReminder': 'Yaklaşan hatırlatma yok',
+  'widget.noVehicle': 'Aracını ekle, özeti burada gör.',
+  'widget.noConsumption': 'İki tam dolumdan sonra',
+  'widget.kmLeft': '{km} km kaldı',
   'ads.title': 'Reklamlar',
   'ads.remove': 'Reklamları kaldır',
   'ads.restore': 'Satın alımları geri yükle',

@@ -19,7 +19,7 @@ export function wipeLocalData(): void {
     // bildirimi (update hook) göndermez; canlı listeler (useLiveQuery) yenilenmez, silinen kayıtlar ekranda kalırdı.
     for (const table of TABLES) tx.delete(table).where(isNotNull(table.id)).run();
   });
-  setActiveVehicleId(null);
+  setActiveVehicleId(null); // widget'ı da boşaltır
   requestSync();
 }
 

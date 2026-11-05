@@ -6,11 +6,11 @@ import { useEffect, useState } from 'react';
 
 import { db } from '@/db/client';
 import { expenses, fuelEntries, reminders, vehicles, type Vehicle } from '@/db/schema';
+import { requestWidgetSync } from '@/features/widget/sync';
 import { dataChanged } from '@/sync/changes';
 
+import { ACTIVE_VEHICLE_KEY } from './active';
 import type { VehicleValues } from './validation';
-
-const ACTIVE_KEY = 'state.activeVehicle';
 
 export async function createVehicle(values: VehicleValues): Promise<string> {
   const now = Date.now();
@@ -74,15 +74,16 @@ export function useVehicles(): Vehicle[] {
 const listeners = new Set<(id: string | null) => void>();
 
 export function setActiveVehicleId(id: string | null) {
-  if (id) Storage.setItemSync(ACTIVE_KEY, id);
-  else Storage.removeItemSync(ACTIVE_KEY);
+  if (id) Storage.setItemSync(ACTIVE_VEHICLE_KEY, id);
+  else Storage.removeItemSync(ACTIVE_VEHICLE_KEY);
   listeners.forEach((l) => l(id));
+  requestWidgetSync(); // widget seçili aracı gösterir
 }
 
 /** Seçili araç; seçili olan silindiyse ilk araca düşer. */
 export function useActiveVehicle(): { vehicles: Vehicle[]; active: Vehicle | null } {
   const list = useVehicles();
-  const [activeId, setActiveId] = useState<string | null>(() => Storage.getItemSync(ACTIVE_KEY));
+  const [activeId, setActiveId] = useState<string | null>(() => Storage.getItemSync(ACTIVE_VEHICLE_KEY));
   useEffect(() => {
     listeners.add(setActiveId);
     return () => {

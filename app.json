@@ -18,7 +18,11 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleAllowMixedLocalizations": true
-      }
+      },
+      "entitlements": {
+        "com.apple.security.application-groups": ["group.com.miracdeprem.ruhsat"]
+      },
+      "appleTeamId": "PH24M45452"
     },
     "locales": {
       "tr": "./locales/ios-tr.json",
@@ -49,7 +53,8 @@
           "androidAppId": "ca-app-pub-3940256099942544~3347511713"
         }
       ],
-      "expo-iap"
+      "expo-iap",
+      "@bacons/apple-targets"
     ],
     "experiments": {
       "typedRoutes": true,
