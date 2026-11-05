@@ -4,6 +4,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
+import { Fab } from '@/components/Fab';
 import { Guilloche } from '@/components/Guilloche';
 import { Odometer } from '@/components/Odometer';
 import { Plate } from '@/components/Plate';
@@ -33,7 +34,7 @@ export default function SummaryScreen() {
   const subtitle = [t('summary.vehicleCount', { count: vehicles.length }), details].filter(Boolean).join(' · ');
 
   return (
-    <Screen>
+    <Screen footer={<Fab icon="fuelpump.fill" label={t('fuel.newTitle')} onPress={() => router.push('/fuel/edit')} />}>
       <Pressable
         accessibilityRole="button"
         accessibilityHint={t('vehicles.title')}
