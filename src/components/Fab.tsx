@@ -6,15 +6,15 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { TAB_BAR_GAP, useBottomBarHeight } from '@/components/Screen';
 import { useI18n } from '@/i18n';
 import { fonts } from '@/theme/colors';
 import { useTheme } from '@/theme/ThemeProvider';
 
 import { Text } from './Text';
 
-// Sekme ekranlarının sağ altındaki yuvarlak eylem düğmesi; yüzen iOS sekme çubuğunun üstünde durur.
+// Sekme ekranlarının sağ altındaki yuvarlak eylem düğmesi; yüzen iOS sekme çubuğunun (ve varsa banner'ın) üstünde durur.
 // Dokununca seçenekler (Yakıt, Masraf) yukarı doğru açılır; arka plan karartılır, boşluğa dokununca kapanır.
-const TAB_BAR_CLEARANCE = 72;
 
 export type FabAction = { icon: SymbolViewProps['name']; label: string; onPress: () => void };
 
@@ -22,7 +22,8 @@ export function Fab({ label, actions }: { label: string; actions: FabAction[] })
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
-  const bottom = insets.bottom + TAB_BAR_CLEARANCE;
+  // Sekme çubuğunun (ve varsa banner'ın) 8 nokta üstünde.
+  const bottom = insets.bottom + TAB_BAR_GAP * 2 + useBottomBarHeight();
 
   const toggle = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

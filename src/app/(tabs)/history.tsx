@@ -141,7 +141,7 @@ export default function HistoryScreen() {
   const groups = groupByMonth(mergeHistory(entries, expenses));
 
   return (
-    <Screen footer={active ? <AddEntryFab /> : null}>
+    <Screen banner footer={active ? <AddEntryFab /> : null}>
       <View style={{ gap: 2 }}>
         <Text variant="title">{t('tab.history')}</Text>
         {active ? (
