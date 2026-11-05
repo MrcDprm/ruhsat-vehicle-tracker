@@ -1,5 +1,6 @@
 import { isNull } from 'drizzle-orm';
 import * as Notifications from 'expo-notifications';
+import Storage from 'expo-sqlite/kv-store';
 import { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 
@@ -39,7 +40,39 @@ export async function ensurePermission(): Promise<boolean> {
   return status === 'granted';
 }
 
+// Ayarlar'daki "Hatırlatma bildirimleri" anahtarı. Kapalıyken bildirim kurulmaz, simgedeki sayı sıfırlanır;
+// hatırlatmalar uygulama içinde (Özet, sekme rozeti) görünmeye devam eder.
+const ENABLED_KEY = 'pref.notifications';
+const enabledListeners = new Set<(on: boolean) => void>();
+
+export function notificationsEnabled(): boolean {
+  return Storage.getItemSync(ENABLED_KEY) !== 'off';
+}
+
+export async function setNotificationsEnabled(on: boolean): Promise<void> {
+  Storage.setItemSync(ENABLED_KEY, on ? 'on' : 'off');
+  enabledListeners.forEach((l) => l(on));
+  if (on) await ensurePermission().catch(() => false);
+  requestSync();
+}
+
+export function useNotificationsEnabled(): boolean {
+  const [on, setOn] = useState(notificationsEnabled);
+  useEffect(() => {
+    enabledListeners.add(setOn);
+    return () => {
+      enabledListeners.delete(setOn);
+    };
+  }, []);
+  return on;
+}
+
 export async function syncNotifications(): Promise<void> {
+  if (!notificationsEnabled()) {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+    await Notifications.setBadgeCountAsync(0).catch(() => false);
+    return;
+  }
   if ((await permissionState()) !== 'granted') return;
   const [vehicleList, reminderList, fuelList, expenseList] = await Promise.all([
     db.select().from(vehicles).where(isNull(vehicles.deletedAt)),

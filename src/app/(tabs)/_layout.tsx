@@ -1,6 +1,6 @@
 import { NativeTabs } from 'expo-router/native-tabs';
 
-import { useNotificationPermission } from '@/features/reminders/notifications';
+import { useNotificationPermission, useNotificationsEnabled } from '@/features/reminders/notifications';
 import { useUpcoming } from '@/features/reminders/useUpcoming';
 import { useActiveVehicle } from '@/features/vehicles/repository';
 import { useI18n } from '@/i18n';
@@ -12,9 +12,11 @@ export default function TabsLayout() {
   const { active } = useActiveVehicle();
   const { upcoming } = useUpcoming(active);
   const permission = useNotificationPermission();
-  // Bildirim izni reddedildiyse gecikmiş ve yaklaşan hatırlatmalar sekmede rozetle gösterilir.
+  const enabled = useNotificationsEnabled();
+  // Bildirim gelmeyecekse (izin reddedildi ya da Ayarlar'dan kapatıldı) gecikmiş ve yaklaşan hatırlatmalar sekmede
+  // rozetle gösterilir.
   const urgent = upcoming.filter((u) => u.info.state === 'overdue' || u.info.state === 'soon').length;
-  const badge = permission === 'denied' && urgent > 0 ? String(urgent) : undefined;
+  const badge = (permission === 'denied' || !enabled) && urgent > 0 ? String(urgent) : undefined;
   return (
     <NativeTabs tintColor={colors.amber} labelStyle={{ color: colors.muted }}>
       <NativeTabs.Trigger name="index">

@@ -28,11 +28,14 @@
           "backgroundColor": "#F2EEE5",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76,
-          "dark": { "backgroundColor": "#15171A" }
+          "dark": {
+            "backgroundColor": "#15171A"
+          }
         }
       ],
       "expo-sqlite",
-      "expo-localization"
+      "expo-localization",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,
