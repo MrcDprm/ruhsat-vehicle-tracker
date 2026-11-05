@@ -19,7 +19,15 @@ describe('örnek veriler', () => {
         expect(e.odometerKm).toBeGreaterThan(data.fuel[i - 1].odometerKm);
       }
     });
-    expect(data.vehicle.odometerKm).toBeGreaterThan(data.fuel[data.fuel.length - 1].odometerKm);
+    expect(data.vehicle.odometerKm).toBe(data.fuel[data.fuel.length - 1].odometerKm);
+  });
+
+  it('bu ay bir dolum olur ve hiçbir kayıt geleceğe düşmez (sabah yüklense de)', () => {
+    const morning = new Date(2026, 10, 1, 8, 30).getTime();
+    const early = buildDemoData(morning, 'tr');
+    const last = early.fuel[early.fuel.length - 1];
+    expect(new Date(last.date).getMonth()).toBe(new Date(morning).getMonth());
+    for (const e of [...early.fuel, ...early.expenses]) expect(e.date).toBeLessThan(morning);
   });
 
   it('tüketim gerçekçi çıkar ve hiçbir aralık işaretlenmez', () => {

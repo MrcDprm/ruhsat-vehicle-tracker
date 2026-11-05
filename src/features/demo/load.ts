@@ -1,3 +1,4 @@
+import { setToolsButtonVisible } from 'expo-dev-client';
 import { LogBox } from 'react-native';
 
 import { setOnboarded } from '@/features/account/onboarding';
@@ -32,7 +33,12 @@ export async function loadDemoData(locale: Locale): Promise<void> {
   for (const expense of data.expenses) await createExpense(vehicleId, expense);
 
   setOnboarded(true);
-  // Görüntülerde Google'ın test reklamı ve geliştirme uyarıları çıkmasın.
+  // Görüntülerde Google'ın test reklamı, geliştirme uyarıları ve geliştirme menüsünün dişli düğmesi çıkmasın.
   setAdsRemoved(true);
   LogBox.ignoreAllLogs();
+  try {
+    setToolsButtonVisible(false); // geliştirme menüsünden ("Tools button") geri açılır
+  } catch {
+    // Mağaza derlemesinde geliştirme menüsü yok; zaten buraya gelinmez.
+  }
 }
