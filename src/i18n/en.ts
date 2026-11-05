@@ -353,3 +353,18 @@ export const en: Record<keyof typeof tr, string> = {
   'ads.notice.failed': 'Couldn’t complete it. Check your connection and try again.',
   'ads.notice.unavailable': 'Purchases aren’t available in this version.',
 };
+
+/**
+ * Sayı 1 olunca kullanılan tekil biçimler ("1 vehicle", "1 day"). Türkçede sayıdan sonra isim tekil kaldığı için
+ * tr.ts'te karşılığı yok. Widget metinlerinde sayı yerine %d durur; widget gün sayısına göre seçer.
+ */
+export const enSingular: Partial<Record<keyof typeof tr, string>> = {
+  'summary.vehicleCount': '{count} vehicle',
+  'reminder.days': '{count} day',
+  'reminder.overdueDays': '{count} day late',
+  'notify.daysLeft': '{count} day left for {name} ({date}).',
+  'account.rejected': '{count} entry couldn’t be sent; it’s safe on this phone.',
+  'account.pendingText': '{count} entry hasn’t reached your account yet. Removing it from this phone will lose it.',
+  'widget.days': '%d day',
+  'widget.overdue': '%d day late',
+};

@@ -2,7 +2,7 @@ import { getLocales } from 'expo-localization';
 import Storage from 'expo-sqlite/kv-store';
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
-import { en } from './en';
+import { en, enSingular } from './en';
 import { tr } from './tr';
 
 export type Locale = 'tr' | 'en';
@@ -10,11 +10,16 @@ export type LocalePreference = 'system' | Locale;
 export type MessageKey = keyof typeof tr;
 
 const dictionaries: Record<Locale, Record<MessageKey, string>> = { tr, en };
+const singulars: Partial<Record<Locale, Partial<Record<MessageKey, string>>>> = { en: enSingular };
 const KEY = 'pref.locale';
 
-/** "{count} araç" gibi yer tutucuları doldurur; bilinmeyen anahtar geliştirmede göze çarpsın diye aynen döner. */
+/**
+ * "{count} araç" gibi yer tutucuları doldurur; bilinmeyen anahtar geliştirmede göze çarpsın diye aynen döner.
+ * count 1 ise ve dilin tekil biçimi varsa o kullanılır ("1 vehicles" değil "1 vehicle").
+ */
 export function translate(locale: Locale, key: string, params?: Record<string, string | number>): string {
-  const template = dictionaries[locale][key as MessageKey] ?? key;
+  const singular = params && String(params.count) === '1' ? singulars[locale]?.[key as MessageKey] : undefined;
+  const template = singular ?? dictionaries[locale][key as MessageKey] ?? key;
   return params
     ? template.replace(/\{(\w+)\}/g, (m, name: string) => (name in params ? String(params[name]) : m))
     : template;

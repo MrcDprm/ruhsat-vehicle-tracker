@@ -1,4 +1,4 @@
-import { en } from './en';
+import { en, enSingular } from './en';
 import { formatMoney, translate, upperCase } from './index';
 import { tr } from './tr';
 
@@ -20,6 +20,30 @@ describe('çeviriler', () => {
   it('yer tutucuyu doldurur, eksik parametreyi olduğu gibi bırakır', () => {
     expect(translate('tr', 'summary.vehicleCount', { count: 2 })).toBe('2 araç');
     expect(translate('en', 'vehicle.deleteText', {})).toBe('{name} and all its records will be deleted.');
+  });
+
+  it('İngilizcede sayı 1 ise tekil biçim, değilse çoğul', () => {
+    expect(translate('en', 'summary.vehicleCount', { count: 1 })).toBe('1 vehicle');
+    expect(translate('en', 'summary.vehicleCount', { count: 2 })).toBe('2 vehicles');
+    expect(translate('en', 'summary.vehicleCount', { count: 0 })).toBe('0 vehicles');
+    expect(translate('en', 'reminder.days', { count: '1' })).toBe('1 day');
+    expect(translate('en', 'reminder.overdueDays', { count: 1 })).toBe('1 day late');
+    expect(translate('en', 'notify.daysLeft', { count: 1, name: 'Inspection', date: '18 Nov' })).toBe(
+      '1 day left for Inspection (18 Nov).',
+    );
+    expect(translate('en', 'widget.days', { count: 1 })).toBe('%d day');
+    // Sayı dışındaki parametre 1 olsa da tekile geçmez.
+    expect(translate('en', 'reminder.atKm', { km: 1 })).toBe('at 1 km');
+  });
+
+  it('Türkçede sayı 1 olsa da metin değişmez', () => {
+    expect(translate('tr', 'summary.vehicleCount', { count: 1 })).toBe('1 araç');
+    expect(translate('tr', 'reminder.days', { count: 1 })).toBe('1 gün');
+  });
+
+  it.each(Object.entries(enSingular))('%s: tekil biçimin yer tutucuları çoğuluyla aynı', (key, text) => {
+    expect(placeholders(text ?? '')).toEqual(placeholders(en[key as keyof typeof en]));
+    expect(text?.includes('%d')).toBe(en[key as keyof typeof en].includes('%d'));
   });
 });
 
