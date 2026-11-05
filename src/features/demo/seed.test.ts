@@ -22,12 +22,17 @@ describe('örnek veriler', () => {
     expect(data.vehicle.odometerKm).toBe(data.fuel[data.fuel.length - 1].odometerKm);
   });
 
-  it('bu ay bir dolum olur ve hiçbir kayıt geleceğe düşmez (sabah yüklense de)', () => {
+  it('son dolum bugün: ayın ilk sabahı yüklense de "Bu ay" boş kalmaz', () => {
     const morning = new Date(2026, 10, 1, 8, 30).getTime();
-    const early = buildDemoData(morning, 'tr');
-    const last = early.fuel[early.fuel.length - 1];
-    expect(new Date(last.date).getMonth()).toBe(new Date(morning).getMonth());
-    for (const e of [...early.fuel, ...early.expenses]) expect(e.date).toBeLessThan(morning);
+    const last = buildDemoData(morning, 'tr').fuel.at(-1);
+    expect(new Date(last?.date ?? 0).toDateString()).toBe(new Date(morning).toDateString());
+  });
+
+  it('hatırlatma tarihleri ileride: muayene 12, sigorta 213, kasko 270 gün sonra', () => {
+    const daysAhead = (ms: number) => Math.round((ms - NOW) / 86_400_000);
+    expect(daysAhead(data.setup.inspection.date)).toBe(12);
+    expect(daysAhead(data.setup.trafficInsurance.date)).toBe(213);
+    expect(daysAhead(data.setup.casco.date)).toBe(270);
   });
 
   it('tüketim gerçekçi çıkar ve hiçbir aralık işaretlenmez', () => {

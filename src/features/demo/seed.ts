@@ -71,8 +71,8 @@ const SPENDS: Spend[] = [
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export function buildDemoData(now: number, locale: Locale): DemoData {
-  // Uygulama tarihleri günün öğlesine sabitler; bugünkü kayıt öğleden önce yüklenirse geleceğe düşmesin.
-  const at = (daysAgo: number) => Math.min(normalizeDate(now - daysAgo * DAY), now - 60_000);
+  // Uygulamadaki gibi günün öğlesi; eksi değer ileri tarih (hatırlatmalar).
+  const at = (daysAgo: number) => normalizeDate(now - daysAgo * DAY);
 
   // Dolumlar: km birikerek artar; tam dolumun litresi, aradaki kısmi dolumlar düşülerek tüketimden bulunur.
   const fuel: FuelValues[] = [];
