@@ -32,6 +32,9 @@ struct SummaryPayload: Decodable {
         let noReminder: String
         let noVehicle: String
         let noConsumption: String
+        // Gün sayısı 1 olunca ("%d day"). Eski sürümün yazdığı veride yok; o zaman days/overdue kullanılır.
+        var dayOne: String?
+        var overdueOne: String?
     }
 
     let vehicle: String?
@@ -64,7 +67,9 @@ struct SummaryPayload: Decodable {
                 today: isTurkish ? "Bugün" : "Today",
                 noReminder: isTurkish ? "Yaklaşan hatırlatma yok" : "Nothing due soon",
                 noVehicle: isTurkish ? "Aracını ekle, özeti burada gör." : "Add your car to see a summary here.",
-                noConsumption: isTurkish ? "İki tam dolumdan sonra" : "After two full fill-ups"
+                noConsumption: isTurkish ? "İki tam dolumdan sonra" : "After two full fill-ups",
+                dayOne: isTurkish ? "%d gün" : "%d day",
+                overdueOne: isTurkish ? "%d gün geçti" : "%d day late"
             )
         )
     }
@@ -115,13 +120,13 @@ struct DueLabel {
         let due = Date(timeIntervalSince1970: dueMs / 1000)
         let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: due)).day ?? 0
         if days < 0 {
-            text = String(format: labels.overdue, -days)
+            text = String(format: (days == -1 ? labels.overdueOne : nil) ?? labels.overdue, -days)
             color = Color("rust")
         } else if days == 0 {
             text = labels.today
             color = Color("amber")
         } else {
-            text = String(format: labels.days, days)
+            text = String(format: (days == 1 ? labels.dayOne : nil) ?? labels.days, days)
             color = days <= 30 ? Color("amber") : Color("ink")
         }
     }

@@ -62,6 +62,13 @@ describe('buildWidgetPayload', () => {
     });
   });
 
+  it('tek gün için tekil etiket de gönderilir (widget gün sayısına göre seçer)', () => {
+    const { labels } = buildWidgetPayload(empty, null, NOW, f);
+    expect(labels.days).toBe('widget.days');
+    expect(labels.dayOne).toBe('widget.days{"count":1}');
+    expect(labels.overdueOne).toBe('widget.overdue{"count":1}');
+  });
+
   it('seçili araç silinmişse ilk araca düşer', () => {
     const p = buildWidgetPayload(
       { ...empty, vehicles: [vehicle('v2', 'Doblo', 2), vehicle('v1', 'Clio', 1)] },
