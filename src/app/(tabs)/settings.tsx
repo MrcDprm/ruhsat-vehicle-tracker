@@ -20,13 +20,19 @@ import {
 import { deleteAllRecords } from '@/features/settings/wipe';
 import { AccountSection } from '@/features/account/AccountSection';
 import { AdsSection } from '@/features/ads/AdsSection';
-import { DemoSection } from '@/features/demo/DemoSection';
 import { useSession } from '@/sync/client';
 import { CURRENCY_FORMATS, formatMoney, useI18n, type LocalePreference } from '@/i18n';
 import { fonts } from '@/theme/colors';
 import { useTheme, type ThemePreference } from '@/theme/ThemeProvider';
 
 const THEMES: ThemePreference[] = ['system', 'light', 'dark'];
+
+// Mağaza görüntüleri için örnek veriler, yalnız geliştirme derlemesinde. Mağaza derlemesinde __DEV__ false olduğundan
+// Metro bu require'ı derlemede siler; modül pakete hiç girmez (import ile olsaydı ölü kod olarak kalırdı).
+const DemoSection = __DEV__
+  ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+    (require('@/features/demo/DemoSection') as typeof import('@/features/demo/DemoSection')).DemoSection
+  : null;
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -222,8 +228,7 @@ export default function SettingsScreen() {
         </Card>
       </Section>
 
-      {/* Mağaza görüntüleri için örnek veriler; mağaza derlemesinde yok. */}
-      {__DEV__ ? <DemoSection /> : null}
+      {DemoSection ? <DemoSection /> : null}
     </Screen>
   );
 }
