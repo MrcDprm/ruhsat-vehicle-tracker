@@ -55,6 +55,15 @@ export function rangeStart(range: RangeKey, now: number, earliest: number | null
   }
 }
 
+/**
+ * Aralığın bitişi: bugünün sonu. Kayıt tarihleri günün öğlesine yazılır (normalizeDate); bitiş "şimdi" olsaydı sabah
+ * girilen kayıt öğleye kadar istatistikte sayılmazdı.
+ */
+export function rangeEnd(now: number): number {
+  const d = new Date(now);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1).getTime() - 1;
+}
+
 const emptyGroups = (): Record<SpendGroup, number> => ({ fuel: 0, maintenance: 0, insurance_tax: 0, other: 0 });
 const inRange = (date: number, from: number, to: number) => date >= from && date <= to;
 

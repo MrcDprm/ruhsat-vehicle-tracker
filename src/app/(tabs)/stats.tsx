@@ -17,6 +17,7 @@ import {
   SPEND_GROUPS,
   consumptionSeries,
   monthlySpend,
+  rangeEnd,
   rangeStart,
   summarizeRange,
   yearlyTotals,
@@ -63,11 +64,12 @@ export default function StatsScreen() {
   const data = useMemo(() => {
     const earliest = Math.min(...fuel.map((e) => e.date), ...expenses.map((e) => e.date));
     const from = rangeStart(range, now, Number.isFinite(earliest) ? earliest : null);
+    const to = rangeEnd(now);
     return {
-      bars: monthlySpend(fuel, expenses, from, now),
-      summary: summarizeRange(fuel, expenses, from, now),
+      bars: monthlySpend(fuel, expenses, from, to),
+      summary: summarizeRange(fuel, expenses, from, to),
       years: yearlyTotals(fuel, expenses),
-      points: consumptionSeries(fuel, from, now),
+      points: consumptionSeries(fuel, from, to),
     };
   }, [fuel, expenses, range, now]);
 
