@@ -31,6 +31,10 @@ type I18nValue = {
   t: (key: MessageKey | (string & {}), params?: Record<string, string | number>) => string;
   /** Yerel biçimde sayı: tr "87.421" / "6,4", en "87,421" / "6.4". */
   number: (n: number, fractionDigits?: number) => string;
+  /** Tutar: tr "1.682,41 ₺", en "1,682.41 ₺". Para birimi şimdilik TL. */
+  money: (n: number, fractionDigits?: number) => string;
+  /** Yerel biçimde tarih, ör. { day: 'numeric', month: 'short' } → "5 Kas" / "5 Nov". */
+  date: (ms: number, options: Intl.DateTimeFormatOptions) => string;
 };
 
 const I18nContext = createContext<I18nValue | null>(null);
@@ -46,6 +50,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<I18nValue>(() => {
     const tag = locale === 'tr' ? 'tr-TR' : 'en-GB';
+    const number = (n: number, fractionDigits = 0) =>
+      new Intl.NumberFormat(tag, {
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits,
+      }).format(n);
     return {
       locale,
       preference,
@@ -54,11 +63,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         setPref(p);
       },
       t: (key, params) => translate(locale, key, params),
-      number: (n, fractionDigits = 0) =>
-        new Intl.NumberFormat(tag, {
-          minimumFractionDigits: fractionDigits,
-          maximumFractionDigits: fractionDigits,
-        }).format(n),
+      number,
+      money: (n, fractionDigits = 2) => `${number(n, fractionDigits)} ₺`,
+      date: (ms, options) => new Intl.DateTimeFormat(tag, options).format(new Date(ms)),
     };
   }, [locale, preference]);
 

@@ -10,6 +10,7 @@ import { Odometer } from '@/components/Odometer';
 import { Plate } from '@/components/Plate';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { FuelCard } from '@/features/fuel/FuelCard';
 import { useActiveVehicle } from '@/features/vehicles/repository';
 import { useI18n } from '@/i18n';
 
@@ -74,7 +75,14 @@ export default function SummaryScreen() {
         </Pressable>
       </Animated.View>
 
-      <Animated.View entering={FadeInDown.delay(90).duration(360)} style={{ gap: 12 }}>
+      <Animated.View entering={FadeInDown.delay(60).duration(360)} style={{ gap: 12 }}>
+        <Text variant="section" tone="muted" style={{ marginTop: 8 }}>
+          {t('summary.fuel')}
+        </Text>
+        <FuelCard vehicle={active} />
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.delay(120).duration(360)} style={{ gap: 12 }}>
         <Text variant="section" tone="muted" style={{ marginTop: 8 }}>
           {t('summary.upcoming')}
         </Text>
