@@ -1,4 +1,4 @@
-# Ruhsat: Araç Bakım ve Yakıt Takibi (plan)
+# Ruhsat: Yakıt ve Bakım Takibi (plan)
 
 iPhone için araç defteri: yakıt, bakım ve masraf kayıtları, Türkiye'ye göre hatırlatmalar. Hesap e-posta koduyla (şifre yok) ya da hesapsız; kayıtlar önce telefonda tutulur, hesap varsa buluta eşitlenir.
 
@@ -79,7 +79,7 @@ Her madde bir issue. Hepsi v1.0.0'da; "sonra eklenecek" yok.
 | Sunucu | Supabase (Auth + PostgreSQL + RLS), ücretsiz katman | E-posta kodlu giriş hazır; yetki veritabanında (RLS); bir haftalık süreye uygun. Kendi API'miz daha uzun sürerdi |
 | E-posta | Resend SMTP (Supabase'e bağlanır), ücretsiz: günde 100, ayda 3.000 | Supabase'in kendi e-postası saatte birkaç gönderimle sınırlı; alan adlı gönderim spam'e düşmez |
 | Bildirim | expo-notifications (yerel) | Sunucu gerekmez; hatırlatmalar telefonda zamanlanır |
-| Grafik | react-native-gifted-charts (react-native-svg) | Hafif, Skia gerektirmez |
+| Grafik | Kendi SVG bileşenlerim (react-native-svg) | İki basit grafik (yığılmış çubuk, çizgi) için kütüphane gereksizdi; görünüm tam kontrolde, Skia gerektirmez |
 | Reklam | react-native-google-mobile-ads (AdMob) | Ücretsiz; kişiselleştirilmemiş istekle ATT gerekmez |
 | Satın alma | expo-iap (StoreKit 2) | Expo modülü, development build ile çalışır; sunucusuz doğrulama yeterli (tek ürün, kilitli içerik yok) |
 | Widget | @bacons/apple-targets + SwiftUI + App Group | Expo projesine yerel hedef ekler; EAS derler |
@@ -96,7 +96,7 @@ Her tabloda: `id` (istemcide üretilen UUID), `user_id` (hesapsızda boş), `cre
 - `expenses`: vehicle_id, date, odometer_km, category, subtype, amount, note
 - `reminders`: vehicle_id, kind (inspection, traffic_insurance, casco, road_tax, service, custom), title, due_date, due_km, interval_months, interval_km, last_done_date, last_done_km, notify (JSON: kaç gün önce)
 
-Yerelde ek: `sync_state` (son çekme imleci), satırlarda `dirty` bayrağı.
+Yerelde ek: son çekme imleci anahtar-değer deposunda (`kv-store`), satırlarda `dirty` bayrağı.
 
 ## Eşitleme tasarımı
 
@@ -122,4 +122,4 @@ Yerelde ek: `sync_state` (son çekme imleci), satırlarda `dirty` bayrağı.
 
 - Sadece iOS, iPhone. Bundle id `com.miracdeprem.ruhsat`.
 - EAS Build (ücretsiz kuyruk), EAS Submit; TestFlight'ta deneme, sonra inceleme.
-- Mağaza adı "Ruhsat: Araç Bakım ve Yakıt Takibi"; İngilizce yerelleştirmede "Ruhsat: Car Maintenance & Fuel".
+- Mağaza adı "Ruhsat: Yakıt ve Bakım Takibi" (30 karakter sınırı); İngilizce yerelleştirmede "Ruhsat: Car Maintenance & Fuel". Bütün mağaza metinleri ve gizlilik etiketleri: `docs/store.md`.
