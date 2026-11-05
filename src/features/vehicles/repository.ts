@@ -5,7 +5,7 @@ import Storage from 'expo-sqlite/kv-store';
 import { useEffect, useState } from 'react';
 
 import { db } from '@/db/client';
-import { vehicles, type Vehicle } from '@/db/schema';
+import { fuelEntries, vehicles, type Vehicle } from '@/db/schema';
 
 import type { VehicleValues } from './validation';
 
@@ -26,10 +26,21 @@ export async function updateVehicle(id: string, values: VehicleValues): Promise<
     .where(eq(vehicles.id, id));
 }
 
-/** Kayıt kalır, işaretlenir: hesaplı kullanıcıda silme diğer cihaza da eşitlenir. */
+/**
+ * Kayıt kalır, işaretlenir: hesaplı kullanıcıda silme diğer cihaza da eşitlenir.
+ * Aracın yakıt kayıtları da aynı anda işaretlenir; ikisi birlikte olur ya da hiçbiri olmaz.
+ */
 export async function deleteVehicle(id: string): Promise<void> {
   const now = Date.now();
-  await db.update(vehicles).set({ deletedAt: now, updatedAt: now, dirty: true }).where(eq(vehicles.id, id));
+  const deleted = { deletedAt: now, updatedAt: now, dirty: true };
+  // expo-sqlite sürücüsünde işlem eşzamanlıdır: geri çağırma async olursa işlem sorgular bitmeden kapanır.
+  db.transaction((tx) => {
+    tx.update(vehicles).set(deleted).where(eq(vehicles.id, id)).run();
+    tx.update(fuelEntries)
+      .set(deleted)
+      .where(and(eq(fuelEntries.vehicleId, id), isNull(fuelEntries.deletedAt)))
+      .run();
+  });
 }
 
 export async function getVehicle(id: string): Promise<Vehicle | undefined> {

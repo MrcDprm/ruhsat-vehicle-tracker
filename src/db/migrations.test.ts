@@ -48,6 +48,32 @@ const FIXTURES: Record<string, Fixture> = {
       });
     },
   },
+  '0001_fuel_entries': {
+    insert: (db) =>
+      db
+        .prepare(
+          `INSERT INTO fuel_entries (id, created_at, updated_at, vehicle_id, date, odometer_km, liters, total_price, unit_price, fuel_type, is_full, station, note)
+           VALUES ('f-0001', 1730800000000, 1730800000000, 'v-0000', 1730790000000, 87900, 38.42, 1652.06, 43, 'petrol', 1, 'Opet Kadıköy', 'ilk kayıt')`,
+        )
+        .run(),
+    check: (db) => {
+      const row = db.prepare(`SELECT * FROM fuel_entries WHERE id = 'f-0001'`).get() as Record<string, unknown>;
+      expect(row).toMatchObject({
+        vehicle_id: 'v-0000',
+        date: 1730790000000,
+        odometer_km: 87900,
+        liters: 38.42,
+        total_price: 1652.06,
+        unit_price: 43,
+        fuel_type: 'petrol',
+        is_full: 1,
+        station: 'Opet Kadıköy',
+        note: 'ilk kayıt',
+        deleted_at: null,
+        dirty: 1,
+      });
+    },
+  },
 };
 
 describe('veritabanı göçleri', () => {
