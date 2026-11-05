@@ -13,15 +13,16 @@ module.exports = (config) => ({
     'com.apple.security.application-groups': config.ios.entitlements['com.apple.security.application-groups'],
   },
   // Kimlik renkleri (src/theme/colors.ts); açık ve koyu temaya göre iOS seçer.
+  // Anahtarlar light/dark olmalı: eklenti belgesindeki color/darkColor örneği yanlış, öyle yazılınca renkler boş üretilir.
   colors: {
-    $accent: { color: '#C9821B', darkColor: '#E0A040' },
-    $widgetBackground: { color: '#F2EEE5', darkColor: '#15171A' },
-    paper: { color: '#F2EEE5', darkColor: '#15171A' },
-    card: { color: '#FBF9F4', darkColor: '#1E2125' },
-    ink: { color: '#23262B', darkColor: '#ECE7DD' },
-    muted: { color: '#6E6A62', darkColor: '#9C978D' },
-    line: { color: '#DDD6C8', darkColor: '#2F3338' },
-    amber: { color: '#C9821B', darkColor: '#E0A040' },
-    rust: { color: '#A6452E', darkColor: '#D9785F' },
+    $accent: { light: '#C9821B', dark: '#E0A040' },
+    $widgetBackground: { light: '#F2EEE5', dark: '#15171A' },
+    paper: { light: '#F2EEE5', dark: '#15171A' },
+    card: { light: '#FBF9F4', dark: '#1E2125' },
+    ink: { light: '#23262B', dark: '#ECE7DD' },
+    muted: { light: '#6E6A62', dark: '#9C978D' },
+    line: { light: '#DDD6C8', dark: '#2F3338' },
+    amber: { light: '#C9821B', dark: '#E0A040' },
+    rust: { light: '#A6452E', dark: '#D9785F' },
   },
 });
