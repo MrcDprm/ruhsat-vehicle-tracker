@@ -70,6 +70,33 @@ Her madde bir issue. Hepsi v1.0.0'da; "sonra eklenecek" yok.
 - İkon, mağaza görselleri (TR/EN), mağaza metni ve anahtar kelimeler, gizlilik sayfası (portfolyoda), app-ads.txt (miracdeprem.com), App Store'a gönderim.
 - SEO (portfolyo proje sayfası, repo açıklaması/topics, mağaza metni), README TR/EN + ekran görüntüleri, sonra v1.0.0 + Release.
 
+## Sürüm 1.1 (karar: 2026-11-05)
+
+1.0 incelemeye gönderilir; inceleme ve AdMob onayı beklenirken aşağıdakiler yapılır ve 1.1 olarak çıkar. Hepsi ücretsiz, sunucu ya da API anahtarı gerektirmez. Her madde tek parça.
+
+### 9. Fişten yakıt girişi
+- Yakıt ekleme ekranında "Fişi tara": kamera ya da galeri. Yazı tanıma telefonda yapılır (iOS Vision ya da ML Kit; Türkçe karakter desteğine göre seçilir); fiş hiçbir yere gönderilmez.
+- Yazar kasa fişinden tarih, istasyon, yakıt türü, litre, birim fiyat ve toplam ayıklanır; bulunanlar forma dolar, kullanıcı kontrol edip kaydeder. Bulunamayan alan boş kalır, uydurulmaz.
+- Ayıklayıcı saf TypeScript; gerçek fiş metinleriyle (farklı dağıtıcılar, LPG, okunamayan satırlar) test edilir.
+
+### 10. Belge cüzdanı
+- Araç başına belgeler: ruhsat, trafik sigortası poliçesi, kasko poliçesi, muayene raporu, diğer. Kameradan ya da galeriden fotoğraf; tam ekran görüntüleme.
+- Dosyalar telefonda uygulamanın klasöründe. Hesap varsa Supabase Storage'a yedeklenir: kullanıcının kendi klasörü, Storage RLS kuralları, dosya türü ve boyut sınırı, kullanıcı başına kota; RLS testleri bozularak doğrulanır.
+- Sigorta/kasko/muayene hatırlatması ilerleyince "Yeni belgeyi ekle" önerisi. Gizlilik metni güncellenir.
+
+### 11. Akıllı bildirimler
+- Ay başında geçen ayın özeti (toplam masraf, bir önceki aya göre fark).
+- Son dolumlarda tüketim belirgin artarsa uyarı (lastik basıncı, bakım). Kurallar saf TypeScript, testli; eşikler gürültü üretmeyecek şekilde.
+- İkisi de Ayarlar'dan ayrı ayrı kapatılabilir; yerel bildirim, sunucu yok.
+
+### 12. Servis geçmişi PDF'i, kilit ekranı widget'ı ve hızlı ekleme
+- Seçili aracın bakım, masraf ve yakıt özetinden PDF (araç bilgisi, kilometre, tarihli bakım listesi); paylaşım sayfasıyla gönderilir. Kullanıcı verisi kaçışlanır.
+- Kilit ekranı widget'ı (dikdörtgen ve satır): sıradaki hatırlatma.
+- Widget'a dokununca uygulama ilgili ekranda açılır; "Yakıt ekle" bağlantısı fiş tarayıcıya da gider.
+
+### 13. 1.1 yayını
+- Telefonda deneme listesi, mağaza metni ve ekran görüntüleri güncellemesi, gizlilik metni (belge yedeği), App Store'a 1.1 gönderimi, README güncellemesi, v1.1.0 + Release.
+
 ## Teknoloji ve gerekçeler
 
 | Ne | Seçim | Neden |
