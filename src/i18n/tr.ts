@@ -334,4 +334,20 @@ export const tr = {
   'account.deleteFailed': 'Hesap silinemedi. İnternet bağlantını kontrol edip tekrar dene.',
   'settings.wipe.textAccount':
     'Araçların, kayıtların ve hatırlatmaların bu telefondan ve hesabından silinir. Önce dışa aktarmak isteyebilirsin.',
+
+  'ads.title': 'Reklamlar',
+  'ads.remove': 'Reklamları kaldır',
+  'ads.restore': 'Satın alımları geri yükle',
+  'ads.privacyOptions': 'Reklam gizlilik seçenekleri',
+  'ads.removedTitle': 'Reklamlar kaldırıldı',
+  'ads.removedText':
+    'Destek olduğun için teşekkürler. Bu satın alma Apple kimliğine bağlı; yeni telefonda geri yükleyebilirsin.',
+  'ads.help': 'Tek seferlik ödeme; İstatistik ve Geçmiş’teki banner kalkar. Bütün özellikler zaten ücretsiz.',
+  'ads.expoGo': 'Reklam ve satın alma bu geliştirme ortamında (Expo Go) kapalı; kendi derlemede çalışır.',
+  'ads.notice.purchased': 'Reklamlar kaldırıldı. Teşekkürler!',
+  'ads.notice.restored': 'Satın alman geri yüklendi; reklamlar kaldırıldı.',
+  'ads.notice.nothing': 'Bu Apple kimliğinde geri yüklenecek bir satın alma bulunamadı.',
+  'ads.notice.pending': 'Satın alma onay bekliyor. Onaylanınca reklamlar kendiliğinden kalkar.',
+  'ads.notice.failed': 'İşlem tamamlanamadı. İnternet bağlantını kontrol edip tekrar dene.',
+  'ads.notice.unavailable': 'Satın alma bu sürümde kullanılamıyor.',
 } as const;

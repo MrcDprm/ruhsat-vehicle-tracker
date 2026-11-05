@@ -324,4 +324,19 @@ export const en: Record<keyof typeof tr, string> = {
   'account.deleteFailed': 'Couldn’t delete the account. Check your connection and try again.',
   'settings.wipe.textAccount':
     'Your cars, entries and reminders will be deleted from this phone and your account. You may want to export them first.',
+  'ads.title': 'Ads',
+  'ads.remove': 'Remove ads',
+  'ads.restore': 'Restore purchases',
+  'ads.privacyOptions': 'Ad privacy options',
+  'ads.removedTitle': 'Ads removed',
+  'ads.removedText':
+    'Thanks for your support. This purchase belongs to your Apple ID; you can restore it on a new phone.',
+  'ads.help': 'One-time payment; removes the banner in Stats and History. Every feature is free anyway.',
+  'ads.expoGo': 'Ads and purchases are off in this development environment (Expo Go); they work in a real build.',
+  'ads.notice.purchased': 'Ads removed. Thank you!',
+  'ads.notice.restored': 'Your purchase is restored; ads are removed.',
+  'ads.notice.nothing': 'No purchase to restore was found for this Apple ID.',
+  'ads.notice.pending': 'The purchase is waiting for approval. Ads will go away once it’s approved.',
+  'ads.notice.failed': 'Couldn’t complete it. Check your connection and try again.',
+  'ads.notice.unavailable': 'Purchases aren’t available in this version.',
 };

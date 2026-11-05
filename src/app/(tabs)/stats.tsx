@@ -73,7 +73,7 @@ export default function StatsScreen() {
 
   if (!active || (fuel.length === 0 && expenses.length === 0)) {
     return (
-      <Screen>
+      <Screen banner>
         <Text variant="title">{t('tab.stats')}</Text>
         <EmptyState text={t('stats.empty')} illustration={false} />
       </Screen>
@@ -100,7 +100,7 @@ export default function StatsScreen() {
   const maxCategory = summary.byCategory[0]?.amount ?? 0;
 
   return (
-    <Screen>
+    <Screen banner>
       <View style={{ gap: 2 }}>
         <Text variant="title">{t('tab.stats')}</Text>
         <Text variant="caption" tone="muted">

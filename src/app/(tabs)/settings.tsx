@@ -19,6 +19,7 @@ import {
 } from '@/features/reminders/notifications';
 import { deleteAllRecords } from '@/features/settings/wipe';
 import { AccountSection } from '@/features/account/AccountSection';
+import { AdsSection } from '@/features/ads/AdsSection';
 import { useSession } from '@/sync/client';
 import { CURRENCY_FORMATS, formatMoney, useI18n, type LocalePreference } from '@/i18n';
 import { fonts } from '@/theme/colors';
@@ -169,6 +170,10 @@ export default function SettingsScreen() {
             </Pressable>
           ) : null}
         </Card>
+      </Section>
+
+      <Section title={t('ads.title')}>
+        <AdsSection />
       </Section>
 
       <Section title={t('settings.data')}>
