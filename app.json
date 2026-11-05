@@ -36,11 +36,30 @@
       "expo-sqlite",
       "expo-localization",
       "expo-sharing",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511",
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713"
+        }
+      ],
+      "expo-iap"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "499e1dfa-66f3-4e05-b25f-3a839c60b05b"
+      }
+    },
+    "owner": "mrcdprm"
   }
 }
