@@ -136,31 +136,33 @@ No features are locked. The app shows a single ad, only on the Stats and History
 - **Notes (İngilizce).** Koyun & Kurt'ün ilk incelemesi "2.1 Information Needed" ile döndü: Apple fiziksel iPhone'da,
   açılıştan başlayan ekran kaydı ve aşağıdaki başlıkları istedi. Bu yüzden ilk gönderimde hepsi var.
 
+2026-11-09 reddinden sonra not yazım kurallarına göre yeniden yazıldı ve satın almanın bu gönderimde olduğu eklendi.
+
 ```
 WHAT THE APP IS
-Ruhsat is a car log for drivers in Turkey: fuel fill-ups and consumption, service and other expenses, and reminders for the periodic vehicle inspection, compulsory traffic insurance, comprehensive insurance and the motor vehicle tax (MTV). Audience: individual car owners. The app is in Turkish and English.
+Ruhsat is a car log for drivers in Turkey: fuel fill-ups and consumption, service and other expenses, and reminders for the periodic vehicle inspection, compulsory traffic insurance, comprehensive insurance and the motor vehicle tax, MTV. Audience: individual car owners. The app is in Turkish and English.
 
 HOW TO REVIEW
-1. On the welcome screen tap "Continue without an account". The whole app works without an account.
-2. Tap "Add a car", enter a name and the odometer, save. The reminder setup opens; set the dates and save.
+1. On the welcome screen tap Continue without an account. The whole app works without an account.
+2. Tap Add a car, enter a name and the odometer, save. The reminder setup opens; set the dates and save.
 3. Use the + button to add a fuel entry or an expense. Summary, History and Stats update.
-4. Optional account: Settings > Account > Sign in with email. A 6-digit code is sent to the email address (no password), so any address you can read works. Signing in only backs up and syncs entries between devices.
+4. Optional account: Settings > Account > Sign in with email. A 6-digit code is sent to the email address and there is no password, so any address you can read works. Signing in only backs up and syncs entries between devices.
 A screen recording on a physical iPhone, starting from app launch, is attached.
 
 ACCOUNT DELETION
 Settings > Account > Delete account. It removes the account and all its entries from our server.
 
 IN-APP PURCHASE
-"Remove Ads" (com.miracdeprem.ruhsat.removeads), non-consumable: Settings > Ads > Remove ads. "Restore purchases" is on the same screen. No feature is locked.
+Remove Ads, product ID com.miracdeprem.ruhsat.removeads, non-consumable. It is included in this submission together with version 1.0. Settings > Ads > Remove ads shows the App Store price; after the purchase the banner disappears at once. Restore purchases is on the same screen. No feature is locked.
 
 ADS
 One Google AdMob banner, only on the Stats and History tabs. Ads are non-personalized; the app does not track users and does not show the App Tracking Transparency prompt. Users in the EEA and UK see Google's consent form.
 
 EXTERNAL SERVICES
-Supabase (database and authentication for the optional account; every row is protected by row level security), Resend (sends the sign-in code email), Google AdMob (ads), Apple StoreKit (the purchase). Entries are stored on the device; nothing is sent to our server unless the user signs in.
+Supabase: database and authentication for the optional account, every row is protected by row level security. Resend: sends the sign-in code email. Google AdMob: ads. Apple StoreKit: the purchase. Entries are stored on the device; nothing is sent to our server unless the user signs in.
 
 REGIONAL DIFFERENCES
-Features are the same in every region. Reminder rules (inspection intervals, MTV payment months January and July) follow Turkish regulations and amounts are in Turkish lira.
+Features are the same in every region. Reminder rules such as inspection intervals and the MTV payment months, January and July, follow Turkish regulations, and amounts are in Turkish lira.
 
 REGULATED OR THIRD-PARTY CONTENT
 None. The app does not provide legal, financial or insurance services; it only stores dates and amounts the user enters.
@@ -168,7 +170,73 @@ None. The app does not provide legal, financial or insurance services; it only s
 
 - **Ek:** fiziksel iPhone'da, açılıştan başlayan ekran kaydı (İngilizce arayüz): hesapsız başla → araç ekle →
   hatırlatmalar → yakıt ve masraf → Geçmiş ve İstatistik → e-postayla giriş ve eşitleme → Reklamlar → hesabı sil.
-- Sürüm sayfasında **In-App Purchases** bölümünden "Remove Ads" bu sürüme eklenir (ilk IAP, uygulamanın ilk sürümüyle birlikte gönderilmek zorunda).
+- Remove Ads satın alması sürümle aynı gönderimde olmak zorunda; nasıl ekleneceği bir sonraki bölümde.
+
+## Uygulama içi satın alma
+
+Monetization > In-App Purchases > Remove Ads. Bütün alanlar doluyken durum Prepare for Submission görünür ve
+Add for Review açıktır; bir alan eksikse Missing Metadata görünür. Apple özellikle inceleme ekran görüntüsünü ister.
+2026-11-10'da App Store Connect'teki değerler:
+
+| Alan | Değer |
+|---|---|
+| Tür | Non-Consumable, tek seferlik |
+| Reference Name | Remove Ads, yalnız App Store Connect'te görünür |
+| Product ID | `com.miracdeprem.ruhsat.removeads`, koddaki `REMOVE_ADS_SKU` ile aynı |
+| Family Sharing | Açık, bir kez açılınca kapatılamaz; kod aile üyesinin hakkını da tanır |
+| Availability | All countries or regions |
+| Price Schedule | Temel ülke Türkiye, TRY; 175 ülke, Apple kendisi ayarlar. Uygulama fiyatı App Store'dan okur |
+| Offer Codes, Image | Boş; yalnız teklif kodu ya da App Store'da tanıtım için gerekir |
+| Tax Category | App Store software |
+| Review Information > Screenshot | Ayarlar ekranının Reklamlar bölümü: Reklamları kaldır ve Satın alımları geri yükle satırları |
+| Review Information > Notes | Aşağıdaki kısa not; uygulamanın uzun notu buraya yapıştırılmaz |
+
+| Dil | Display Name | Description |
+|---|---|---|
+| Turkish | Reklamları kaldır, 17 | İstatistik ve Geçmiş ekranlarındaki reklamı kaldırır., 53 |
+| English (U.K.) | Remove Ads, 10 | Removes the ad on the Stats and History screens., 48 |
+| English (U.S.) | Remove Ads, 10 | Removes the ad on the Stats and History screens., 48 |
+
+Apple'ın ürün sayfası rehberi ad için 35, açıklama için 55 karakter sınırı veriyor; form 53 karakteri kabul etti.
+English (U.S.) incelemenin yapıldığı ABD mağazası için eklenir; yoksa ödeme penceresinde Türkçe ad çıkabilir.
+
+```
+Settings > Ads > Remove ads. One-time purchase that removes the single banner ad shown on the Stats and History screens. Restore purchases is on the same screen. All features stay free.
+```
+
+### Gönderim
+
+Bir uygulamanın ilk satın alması tek başına gönderilemez, uygulamanın bir sürümüyle aynı gönderimde incelenir. Sürüm
+ve satın alma aynı taslak gönderimde toplanır:
+
+1. Remove Ads sayfasında Add for Review. Taslak yoksa Create New Submission, platform iOS. Taslakta sürüm eklenmesini
+   isteyen uyarı çıkar; sürüm eklenince kalkar.
+2. Sürüm sayfasında Add for Review, listeden aynı taslak seçilir.
+3. Taslakta iki öğe olmalı: 1.0 for iOS ve Remove Ads. Submit for Review ancak ikisi birlikteyken açılır.
+4. Apple'ın gönderim e-postasında Number of items submitted: 2 yazar. 1 yazıyorsa satın alma pakette yoktur.
+
+### Ret sonrası
+
+1.0 derleme 8, 2026-11-09'da Guideline 2.1(b) ile döndü: gönderimde yalnız sürüm vardı, e-postada Number of items
+submitted: 1 yazıyordu. Reddedilen gönderimin durumu Unresolved Issues olur ve içine öğe eklenemez. Oradaki Resubmit to
+App Review yalnız içindeki öğeleri yeniden yollar, yani aynı ret tekrar gelir. Önceki gönderimde satın alma ayrı bir
+taslakta tek başına kalmıştı; o taslak sürüm istediği için gönderilemiyordu.
+
+2026-11-10'da işe yarayan sıra:
+
+1. Satın almanın tek başına durduğu eski taslak silinir; satın alma Prepare for Submission durumuna döner.
+2. Sürüm reddedilen gönderimden çıkarılır. Sürüm 1.0 Developer Rejected olur; onaylanmamış sürüm için bu bir kilit
+   değildir, yeniden gönderime girebilir.
+3. Remove Ads sayfasında Add for Review. Platform iOS ve sürüm 1.0, derleme 8 seçilir. Sürüm ve satın alma aynı yeni
+   taslağa girer: taslakta will be reviewed together with iOS version 1.0 ve Items Ready to Submit (2) yazar, Submit for
+   Review açılır. Satın almanın durumu Ready for Review olur.
+4. Sürüm sayfasında inceleme notu, ek ve derleme kontrol edilip kaydedilir, sonra Submit for Review.
+
+Yeni derleme gerekmedi: taslak mevcut derleme 8 ile oluştu. Taslak sürüm olmadan açılırsa sürüm
+seçilemez, Unable to Submit for Review uyarısı çıkar; o zaman o taslak silinip 3. adım sürüm seçilerek yeniden yapılır.
+
+Kaçınılacak: onaylanmış bir sürümü elle Developer Rejected yapmak. Forumda bu, satın almanın sürüme bir daha
+bağlanamadığı bir kilide yol açmış.
 
 ## Ekran görüntüleri
 
