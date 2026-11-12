@@ -4,8 +4,6 @@
 
 Ruhsat, iPhone için araç bakım ve yakıt takip uygulaması. Yakıt dolumlarını kaydedip gerçek tüketimini görürsün, bakım ve masrafları tek yerde tutarsın; muayene, sigorta ve MTV zamanı gelmeden hatırlatma alırsın. Hesapsız çalışır; e-postana gelen kodla giriş yaparsan kayıtların telefonlar arasında eşitlenir.
 
-Yakında App Store'da (incelemede).
-
 ## Özellikler
 
 - **Hesap şart değil.** Kayıtlar önce telefona yazılır. Giriş isteğe bağlı ve şifresiz: e-postana 6 haneli bir kod gelir. Giriş yapınca kayıtların yedeklenir ve telefonların arasında eşitlenir; uygulama internetsiz de çalışmaya devam eder.
@@ -43,10 +41,6 @@ Yakında App Store'da (incelemede).
 - EAS Build ve Submit, TestFlight
 
 ## Kurulum ve Çalıştırma
-
-### iPhone
-
-Yakında App Store'da.
 
 ### Kaynaktan çalıştırma
 
@@ -88,4 +82,4 @@ npm run lint
 - Tüketimi sürücünün beklediği gibi ölçmeyi: tam depodan tam depoya, kısmi dolumlar sonraki aralığa taşınarak, LPG ayrı.
 - Tarih kurallarını (muayene, sigorta, MTV, kilometreye göre bakım) telefonsuz test edebildiğim saf fonksiyonlar olarak yazmayı. Bir ders: kayıtlar günün öğlesine yazılıyor, bu yüzden "şu an"da biten aralık sabahki dolumu dışarıda bırakıyordu. Aralıklar artık günün sonunda bitiyor.
 - Bir Expo uygulamasına SwiftUI ile yerel widget eklemeyi: uygulama özeti App Group'a yazıyor, widget günleri kendisi sayıyor. Renk ayarlarındaki yanlış bir anahtar widget'ın tamamını siyah gösteriyordu.
-- App Store'a çıkarmayı: EAS derlemeleri, TestFlight, sandbox'ta denenen StoreKit satın alması, reklam onayı, ekran kaydıyla App Review notları. Bir de iOS'un Türkçe büyük harfi doğru yapmadığını ("VERILERIM"), i ve ı'yı kendim çevirmem gerektiğini.
+- App Store yayınına hazırlamayı: EAS derlemeleri, TestFlight, sandbox'ta denenen StoreKit satın alması, reklam onayı, ekran kaydıyla App Review notları. Bir de iOS'un Türkçe büyük harfi doğru yapmadığını, VERİLERİM yerine VERILERIM yazdığını, i ve ı'yı kendim çevirmem gerektiğini.

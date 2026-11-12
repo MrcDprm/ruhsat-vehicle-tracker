@@ -4,8 +4,6 @@
 
 Ruhsat is a car maintenance and fuel tracker for iPhone. Log your fill-ups and see your real fuel consumption, keep service and expenses in one place, and get reminders before the vehicle inspection, insurance and road tax (MTV) are due. It works without an account; sign in with a code sent to your email and your entries sync between phones.
 
-Coming soon to the App Store (in review).
-
 ## Features
 
 - **No account needed.** Entries are saved on the phone first. Signing in is optional and has no password: you get a 6-digit code by email. Once you sign in, your entries are backed up and synced between phones, and the app keeps working offline.
@@ -43,10 +41,6 @@ Coming soon to the App Store (in review).
 - EAS Build and Submit, TestFlight
 
 ## Installation
-
-### iPhone
-
-Coming soon to the App Store.
 
 ### Run from source
 
@@ -88,4 +82,4 @@ npm run lint
 - Measuring consumption the way drivers expect: from full tank to full tank, with partial fill-ups carried into the next interval and LPG measured on its own.
 - Writing date rules (inspection, insurance, road tax, service by distance) as pure functions that I can test without a phone. One lesson: entries are stored at noon, so a range that ended "now" left out this morning's fill-up. Ranges now end at the end of the day.
 - Adding a native SwiftUI widget to an Expo app: the app writes a summary to an App Group, and the widget counts the days on its own. A wrong key in the colour settings made the whole widget black.
-- Shipping to the App Store: EAS builds, TestFlight, a StoreKit purchase tested in the sandbox, ad consent, and App Review notes with a screen recording. Also that iOS doesn't uppercase Turkish correctly ("VERILERIM"), so I convert i and ı myself.
+- Preparing an App Store release: EAS builds, TestFlight, a StoreKit purchase tested in the sandbox, ad consent, and App Review notes with a screen recording. Also that iOS doesn't uppercase Turkish correctly, it wrote VERILERIM instead of VERİLERİM, so I convert i and ı myself.
